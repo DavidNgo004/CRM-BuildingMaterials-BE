@@ -56,7 +56,7 @@ class AuthController extends Controller
         }
 
         return response()->json([
-            'message' => 'Staff created',
+            'message' => 'Nhân viên kho đã được tạo thành công',
             'data' => $result['data']
         ]);
 

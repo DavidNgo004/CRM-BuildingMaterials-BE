@@ -279,6 +279,244 @@
                     }
                 ]
             }
+        },
+        "/api/products": {
+            "get": {
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Lấy danh sách sản phẩm",
+                "operationId": "f86f583db1eec2bcbc7af3e225cdad46",
+                "responses": {
+                    "200": {
+                        "description": "Danh sách sản phẩm",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "name": {
+                                                "type": "string",
+                                                "example": "Xi măng"
+                                            },
+                                            "unit": {
+                                                "type": "string",
+                                                "example": "bao"
+                                            },
+                                            "import_price": {
+                                                "type": "number",
+                                                "example": 50000
+                                            },
+                                            "sell_price": {
+                                                "type": "number",
+                                                "example": 60000
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Tạo mới sản phẩm",
+                "operationId": "17f3d564b7d67a930b86e52c9126ff94",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "unit",
+                                    "import_price",
+                                    "sell_price"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Xi măng"
+                                    },
+                                    "unit": {
+                                        "type": "string",
+                                        "example": "bao"
+                                    },
+                                    "import_price": {
+                                        "type": "number",
+                                        "example": 50000
+                                    },
+                                    "sell_price": {
+                                        "type": "number",
+                                        "example": 60000
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Tạo sản phẩm thành công"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/products/{id}": {
+            "put": {
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Cập nhật sản phẩm",
+                "operationId": "dd49a8bdaadcaefc161483e6dae45939",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID sản phẩm",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Xi mang updated"
+                                    },
+                                    "unit": {
+                                        "type": "string",
+                                        "example": "bao"
+                                    },
+                                    "import_price": {
+                                        "type": "number",
+                                        "example": 55000
+                                    },
+                                    "sell_price": {
+                                        "type": "number",
+                                        "example": 65000
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Cập nhật thành công",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "name": {
+                                            "type": "string",
+                                            "example": "Xi mang updated"
+                                        },
+                                        "unit": {
+                                            "type": "string",
+                                            "example": "bao"
+                                        },
+                                        "import_price": {
+                                            "type": "number",
+                                            "example": 55000
+                                        },
+                                        "sell_price": {
+                                            "type": "number",
+                                            "example": 65000
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Không tìm thấy sản phẩm"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Xóa sản phẩm",
+                "operationId": "ebb9652bf7060ea6e1cc41400d2de43f",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID sản phẩm",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Xóa thành công",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Deleted"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Không tìm thấy sản phẩm"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -294,6 +532,10 @@
         {
             "name": "Auth",
             "description": "API xác thực người dùng"
+        },
+        {
+            "name": "Product",
+            "description": "Quản lý sản phẩm"
         }
     ]
 }
