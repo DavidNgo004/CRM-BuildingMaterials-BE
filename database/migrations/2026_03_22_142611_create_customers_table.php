@@ -11,14 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('suppliers', function (Blueprint $table) {
+        Schema::create('customers', function (Blueprint $table) {
             $table->id();
-            $table->string('code', 50)->unique()->comment('Mã nhà cung cấp');
-            $table->string('name')->comment('Tên nhà cung cấp');
-            $table->string('tax_code', 50)->nullable()->comment('Mã số thuế');
-            $table->string('phone', 20)->unique()->comment('SĐT 10 số tĩnh');
-            $table->string('email', 100)->unique()->comment('Email báo đơn hàng');
-            $table->text('address')->nullable();
+            $table->string('code', 50)->unique()->comment('Mã khách hàng tự tạo');
+            $table->string('name')->comment('Tên khách hàng');
+            $table->string('phone', 20)->unique()->comment('SĐT suy nhất 10 số');
+            $table->text('address')->nullable()->comment('Địa chỉ khách hàng');
+            $table->string('customer_type', 50)->default('retail')->comment('Loại KH (wholesale/retail, sỉ/lẻ...) để áp dụng ưu đãi');
             $table->boolean('status')->default(true)->comment('Trạng thái hoạt động');
             $table->text('notes')->nullable();
             $table->timestamps();
@@ -31,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('suppliers');
+        Schema::dropIfExists('customers');
     }
 };

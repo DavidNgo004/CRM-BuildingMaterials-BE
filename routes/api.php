@@ -25,4 +25,17 @@ use App\Http\Controllers\SupplierController;
 Route::middleware('auth:api')->group(function(){
     Route::apiResource('suppliers', SupplierController::class);
 });
+
+// Customer routes
+use App\Http\Controllers\CustomerController;
+Route::middleware('auth:api')->group(function(){
+    Route::apiResource('customers', CustomerController::class);
+});
+
+// Import routes
+use App\Http\Controllers\ImportController;
+Route::middleware('auth:api')->group(function(){
+    Route::apiResource('imports', ImportController::class)->except(['update']);
+    Route::put('imports/{import}/status', [ImportController::class, 'changeStatus']);
+});
 ?>

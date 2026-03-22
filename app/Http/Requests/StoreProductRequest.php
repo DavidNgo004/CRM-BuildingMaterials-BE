@@ -8,7 +8,7 @@ class StoreProductRequest extends FormRequest{
     
     public function rules(){
         return[
-            'supplier_id' => 'nullable|exists:suppliers,id',
+            'supplier_id' => 'required|exists:suppliers,id',
             'name' => 'required|string|max:255',
             'unit' => 'required|string|max:50',
             'import_price' => 'required|numeric|min:0',

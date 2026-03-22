@@ -15,6 +15,7 @@ class Product extends Model
         'unit',
         'import_price',
         'sell_price',
+        'stock',
         'status',
     ];
 

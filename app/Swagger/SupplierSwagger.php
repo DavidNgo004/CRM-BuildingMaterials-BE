@@ -45,11 +45,11 @@ class SupplierSwagger
      *                 type="array",
      *                 @OA\Items(
      *                     @OA\Property(property="id", type="integer", example=1),
-     *                     @OA\Property(property="code", type="string", example="NCC001"),
+     *                     @OA\Property(property="code", type="string", example="NCC-A1B2C3"),
      *                     @OA\Property(property="name", type="string", example="Công ty Xi măng Vicem Hà Tiên"),
      *                     @OA\Property(property="tax_code", type="string", example="0101234567"),
+     *                     @OA\Property(property="phone", type="string", example="0281234567"),
      *                     @OA\Property(property="email", type="string", example="contact@vicem.vn"),
-     *                     @OA\Property(property="phone", type="string", example="02812345678"),
      *                     @OA\Property(property="address", type="string", example="Số 1, đường A, HCM"),
      *                     @OA\Property(property="status", type="boolean", example=true)
      *                 )
@@ -71,12 +71,11 @@ class SupplierSwagger
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             required={"name"},
-     *             @OA\Property(property="code", type="string", example="NCC002"),
+     *             required={"name", "phone", "email"},
      *             @OA\Property(property="name", type="string", example="Công ty Cổ phần Thép Hòa Phát"),
      *             @OA\Property(property="tax_code", type="string", example="0901234567"),
+     *             @OA\Property(property="phone", type="string", example="0241234567"),
      *             @OA\Property(property="email", type="string", example="contact@hoaphat.com.vn"),
-     *             @OA\Property(property="phone", type="string", example="02412345678"),
      *             @OA\Property(property="address", type="string", example="KCN Phố Nối A, Hưng Yên"),
      *             @OA\Property(property="status", type="boolean", example=true),
      *             @OA\Property(property="notes", type="string", example="Nhà cung cấp thép chính")
@@ -136,11 +135,10 @@ class SupplierSwagger
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             @OA\Property(property="code", type="string", example="NCC002"),
      *             @OA\Property(property="name", type="string", example="Thép Hòa Phát (Updated)"),
      *             @OA\Property(property="tax_code", type="string", example="0901234567"),
+     *             @OA\Property(property="phone", type="string", example="0241234567"),
      *             @OA\Property(property="email", type="string", example="contact@hoaphat.com.vn"),
-     *             @OA\Property(property="phone", type="string", example="02412345678"),
      *             @OA\Property(property="address", type="string", example="KCN Phố Nối A, Hưng Yên"),
      *             @OA\Property(property="status", type="boolean", example=false),
      *             @OA\Property(property="notes", type="string", example="Tạm dừng nhập hàng")

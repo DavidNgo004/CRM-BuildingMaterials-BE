@@ -26,6 +26,7 @@ class ProductSwagger
      *             type="array",
      *             @OA\Items(
      *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="supplier_id", type="integer", example=1),
      *                 @OA\Property(property="name", type="string", example="Xi măng"),
      *                 @OA\Property(property="unit", type="string", example="bao"),
      *                 @OA\Property(property="import_price", type="number", example=50000),
@@ -47,7 +48,8 @@ class ProductSwagger
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             required={"name","unit","import_price","sell_price"},
+     *             required={"supplier_id","name","unit","import_price","sell_price"},
+     *             @OA\Property(property="supplier_id", type="integer", example=1),
      *             @OA\Property(property="name", type="string", example="Xi măng"),
      *             @OA\Property(property="unit", type="string", example="bao"),
      *             @OA\Property(property="import_price", type="number", example=50000),
@@ -81,6 +83,8 @@ class ProductSwagger
  *     @OA\RequestBody(
  *         required=true,
  *         @OA\JsonContent(
+ *             required={"supplier_id"},
+ *             @OA\Property(property="supplier_id", type="integer", example=1),
  *             @OA\Property(property="name", type="string", example="Xi mang updated"),
  *             @OA\Property(property="unit", type="string", example="bao"),
  *             @OA\Property(property="import_price", type="number", example=55000),
@@ -93,6 +97,7 @@ class ProductSwagger
  *         description="Cập nhật thành công",
  *         @OA\JsonContent(
  *             @OA\Property(property="id", type="integer", example=1),
+ *             @OA\Property(property="supplier_id", type="integer", example=1),
  *             @OA\Property(property="name", type="string", example="Xi mang updated"),
  *             @OA\Property(property="unit", type="string", example="bao"),
  *             @OA\Property(property="import_price", type="number", example=55000),

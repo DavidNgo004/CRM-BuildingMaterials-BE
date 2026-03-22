@@ -280,6 +280,588 @@
                 ]
             }
         },
+        "/api/customers": {
+            "get": {
+                "tags": [
+                    "Customer"
+                ],
+                "summary": "Lấy danh sách khách hàng (có phân trang)",
+                "operationId": "9614902f022228af7264d1d6b2d4dd89",
+                "parameters": [
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Số lượng bản ghi trên trang",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 15
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Từ khóa tìm kiếm (tên, sđt, mã...)",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Thành công",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "current_page": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "code": {
+                                                        "type": "string",
+                                                        "example": "KH-A1B2C3"
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "Nguyễn Văn A"
+                                                    },
+                                                    "phone": {
+                                                        "type": "string",
+                                                        "example": "0901234567"
+                                                    },
+                                                    "address": {
+                                                        "type": "string",
+                                                        "example": "Quận 1, TPHCM"
+                                                    },
+                                                    "customer_type": {
+                                                        "type": "string",
+                                                        "example": "wholesale"
+                                                    },
+                                                    "status": {
+                                                        "type": "boolean",
+                                                        "example": true
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "total": {
+                                            "type": "integer",
+                                            "example": 20
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Customer"
+                ],
+                "summary": "Tạo mới khách hàng",
+                "operationId": "edfa1ec55dd2515717c1dad449f11021",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "phone"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Trần Thị B"
+                                    },
+                                    "phone": {
+                                        "description": "SĐT 10 số tĩnh",
+                                        "type": "string",
+                                        "example": "0987654321"
+                                    },
+                                    "address": {
+                                        "type": "string",
+                                        "example": "Quận 1, TPHCM"
+                                    },
+                                    "customer_type": {
+                                        "type": "string",
+                                        "example": "retail"
+                                    },
+                                    "status": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "notes": {
+                                        "type": "string",
+                                        "example": "Khách mua lẻ thường xuyên"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Thành công"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/customers/{id}": {
+            "get": {
+                "tags": [
+                    "Customer"
+                ],
+                "summary": "Xem chi tiết khách hàng",
+                "operationId": "da1f6b8983b8dcb06f312f8605e44af6",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Thành công"
+                    },
+                    "404": {
+                        "description": "Không tìm thấy khách hàng"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Customer"
+                ],
+                "summary": "Cập nhật khách hàng",
+                "operationId": "55d9e875484916cd535a0456aaa9291d",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Trần Thị Bình"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "0987654321"
+                                    },
+                                    "address": {
+                                        "type": "string",
+                                        "example": "Quận 3, TP. HCM"
+                                    },
+                                    "customer_type": {
+                                        "type": "string",
+                                        "example": "retail"
+                                    },
+                                    "status": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "notes": {
+                                        "type": "string",
+                                        "example": "Sửa tên bị sai"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Thành công"
+                    },
+                    "404": {
+                        "description": "Không tìm thấy khách hàng"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Customer"
+                ],
+                "summary": "Xóa khách hàng",
+                "operationId": "cc0adeb8d33589d163a8cb370004a2de",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Thành công",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Khách hàng đã được xóa"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Không tìm thấy khách hàng"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/imports": {
+            "get": {
+                "tags": [
+                    "Import"
+                ],
+                "summary": "Lấy danh sách phiếu nhập kho (có phân trang)",
+                "operationId": "f3e856811b72a11e3a1c2fb94f67b0eb",
+                "parameters": [
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Số lượng bản ghi trên trang",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 15
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Tìm kiếm theo mã phiếu hoặc tên nhà cung cấp",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Thành công",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "code": {
+                                                        "type": "string",
+                                                        "example": "PN-A1B2C3"
+                                                    },
+                                                    "user_id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "total_price": {
+                                                        "type": "number",
+                                                        "example": 5000000
+                                                    },
+                                                    "discount_amount": {
+                                                        "type": "number",
+                                                        "example": 100000
+                                                    },
+                                                    "grand_total": {
+                                                        "type": "number",
+                                                        "example": 4900000
+                                                    },
+                                                    "status": {
+                                                        "description": "pending/approved/completed/cancelled",
+                                                        "type": "string",
+                                                        "example": "pending"
+                                                    },
+                                                    "note": {
+                                                        "type": "string",
+                                                        "example": "Nhập đợt 1"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Import"
+                ],
+                "summary": "Tạo phiếu nhập kho mới (Gom sản phẩm của nhiều nhà cung cấp)",
+                "operationId": "c91f7c4433d6755dcda29c5d7ada6511",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "details"
+                                ],
+                                "properties": {
+                                    "note": {
+                                        "type": "string",
+                                        "example": "Nhập đợt 1 tổng hợp"
+                                    },
+                                    "discount_amount": {
+                                        "type": "number",
+                                        "example": 100000
+                                    },
+                                    "details": {
+                                        "type": "array",
+                                        "items": {
+                                            "required": [
+                                                "product_id",
+                                                "quantity",
+                                                "unit_price"
+                                            ],
+                                            "properties": {
+                                                "product_id": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                },
+                                                "quantity": {
+                                                    "type": "integer",
+                                                    "example": 100
+                                                },
+                                                "unit_price": {
+                                                    "type": "number",
+                                                    "example": 50000
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Thành công"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/imports/{id}": {
+            "get": {
+                "tags": [
+                    "Import"
+                ],
+                "summary": "Xem chi tiết phiếu nhập (kèm mảng chi tiết sản phẩm)",
+                "operationId": "72541dbf3884b828bbab1f9ae309f987",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID phiếu nhập",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Thành công"
+                    },
+                    "404": {
+                        "description": "Không tìm thấy"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Import"
+                ],
+                "summary": "Xóa phiếu nhập",
+                "operationId": "afcf6e53d764f9ebdb899778ee35484b",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID phiếu nhập",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Thành công"
+                    },
+                    "404": {
+                        "description": "Không tìm thấy"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/imports/{id}/status": {
+            "put": {
+                "tags": [
+                    "Import"
+                ],
+                "summary": "Cập nhật trạng thái phiếu nhập (pending -> approved -> completed)",
+                "description": "Khi đổi `approved`: Hệ gửi báo giá Supplier. Đổi `completed`: Hàng về, cộng Stock.",
+                "operationId": "c961ea751c890f8e72b7d5e3d0072a28",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID phiếu nhập",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "status"
+                                ],
+                                "properties": {
+                                    "status": {
+                                        "type": "string",
+                                        "enum": [
+                                            "pending",
+                                            "approved",
+                                            "completed",
+                                            "cancelled"
+                                        ],
+                                        "example": "approved"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Thành công"
+                    },
+                    "400": {
+                        "description": "Lỗi logic trạng thái"
+                    },
+                    "404": {
+                        "description": "Không tìm thấy"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/products": {
             "get": {
                 "tags": [
@@ -297,6 +879,10 @@
                                     "items": {
                                         "properties": {
                                             "id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "supplier_id": {
                                                 "type": "integer",
                                                 "example": 1
                                             },
@@ -342,12 +928,17 @@
                         "application/json": {
                             "schema": {
                                 "required": [
+                                    "supplier_id",
                                     "name",
                                     "unit",
                                     "import_price",
                                     "sell_price"
                                 ],
                                 "properties": {
+                                    "supplier_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
                                     "name": {
                                         "type": "string",
                                         "example": "Xi măng"
@@ -406,7 +997,14 @@
                     "content": {
                         "application/json": {
                             "schema": {
+                                "required": [
+                                    "supplier_id"
+                                ],
                                 "properties": {
+                                    "supplier_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
                                     "name": {
                                         "type": "string",
                                         "example": "Xi mang updated"
@@ -437,6 +1035,10 @@
                                 "schema": {
                                     "properties": {
                                         "id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "supplier_id": {
                                             "type": "integer",
                                             "example": 1
                                         },
@@ -567,7 +1169,7 @@
                                                     },
                                                     "code": {
                                                         "type": "string",
-                                                        "example": "NCC001"
+                                                        "example": "NCC-A1B2C3"
                                                     },
                                                     "name": {
                                                         "type": "string",
@@ -577,13 +1179,13 @@
                                                         "type": "string",
                                                         "example": "0101234567"
                                                     },
+                                                    "phone": {
+                                                        "type": "string",
+                                                        "example": "0281234567"
+                                                    },
                                                     "email": {
                                                         "type": "string",
                                                         "example": "contact@vicem.vn"
-                                                    },
-                                                    "phone": {
-                                                        "type": "string",
-                                                        "example": "02812345678"
                                                     },
                                                     "address": {
                                                         "type": "string",
@@ -626,13 +1228,11 @@
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "name"
+                                    "name",
+                                    "phone",
+                                    "email"
                                 ],
                                 "properties": {
-                                    "code": {
-                                        "type": "string",
-                                        "example": "NCC002"
-                                    },
                                     "name": {
                                         "type": "string",
                                         "example": "Công ty Cổ phần Thép Hòa Phát"
@@ -641,13 +1241,13 @@
                                         "type": "string",
                                         "example": "0901234567"
                                     },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "0241234567"
+                                    },
                                     "email": {
                                         "type": "string",
                                         "example": "contact@hoaphat.com.vn"
-                                    },
-                                    "phone": {
-                                        "type": "string",
-                                        "example": "02412345678"
                                     },
                                     "address": {
                                         "type": "string",
@@ -736,10 +1336,6 @@
                         "application/json": {
                             "schema": {
                                 "properties": {
-                                    "code": {
-                                        "type": "string",
-                                        "example": "NCC002"
-                                    },
                                     "name": {
                                         "type": "string",
                                         "example": "Thép Hòa Phát (Updated)"
@@ -748,13 +1344,13 @@
                                         "type": "string",
                                         "example": "0901234567"
                                     },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "0241234567"
+                                    },
                                     "email": {
                                         "type": "string",
                                         "example": "contact@hoaphat.com.vn"
-                                    },
-                                    "phone": {
-                                        "type": "string",
-                                        "example": "02412345678"
                                     },
                                     "address": {
                                         "type": "string",
@@ -851,6 +1447,14 @@
         {
             "name": "Auth",
             "description": "API xác thực người dùng"
+        },
+        {
+            "name": "Customer",
+            "description": "Quản lý khách hàng"
+        },
+        {
+            "name": "Import",
+            "description": "Quản lý Nhập Kho (Phiếu Nhập) Đa Nhà Cung Cấp"
         },
         {
             "name": "Product",

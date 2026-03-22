@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreSupplierRequest extends FormRequest
+class UpdateCustomerRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -13,12 +13,12 @@ class StoreSupplierRequest extends FormRequest
 
     public function rules(): array
     {
+        $id = $this->route('customer') ?? $this->route('id');
         return [
             'name' => 'required|string|max:255',
-            'tax_code' => 'nullable|string|max:50',
-            'phone' => 'required|digits:10|unique:suppliers,phone',
-            'email' => 'required|email|max:100|unique:suppliers,email',
+            'phone' => 'required|digits:10|unique:customers,phone,' . $id,
             'address' => 'nullable|string',
+            'customer_type' => 'nullable|string|max:50|in:wholesale,retail',
             'status' => 'boolean',
             'notes' => 'nullable|string',
         ];

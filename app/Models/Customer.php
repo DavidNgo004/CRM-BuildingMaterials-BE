@@ -7,16 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
-class Supplier extends Model
+class Customer extends Model
 {
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'name',
-        'tax_code',
         'phone',
-        'email',
         'address',
+        'customer_type',
         'status',
         'notes',
     ];
@@ -25,15 +24,10 @@ class Supplier extends Model
     {
         parent::boot();
 
-        static::creating(function ($supplier) {
-            if (empty($supplier->code)) {
-                $supplier->code = 'NCC-' . strtoupper(Str::random(6)); // VD: NCC-A1B2C3
+        static::creating(function ($customer) {
+            if (empty($customer->code)) {
+                $customer->code = 'KH-' . strtoupper(Str::random(6)); // VD: KH-A1B2C3
             }
         });
-    }
-
-    public function products()
-    {
-        return $this->hasMany(Product::class, 'supplier_id', 'id');
     }
 }
