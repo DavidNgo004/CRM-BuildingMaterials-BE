@@ -13,10 +13,16 @@ class ProductService
         $this->productRepository = $productRepository;
     }
 
+    public function paginate($perPage = 15, $search = null)
+    {
+        return $this->productRepository->paginate($perPage, $search);
+    }
+
     public function getAll()
     {
         return $this->productRepository->getAll();
     }
+
 
     public function create($request)
     {

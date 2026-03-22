@@ -19,4 +19,10 @@ Route::middleware('auth:api')->group(function(){
     Route::put('/products/{id}',[ProductController::class,'update']);
     Route::delete('/products/{id}',[ProductController::class,'destroy']);
 });
+
+// Supplier routes
+use App\Http\Controllers\SupplierController;
+Route::middleware('auth:api')->group(function(){
+    Route::apiResource('suppliers', SupplierController::class);
+});
 ?>

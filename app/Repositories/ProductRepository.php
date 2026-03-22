@@ -6,9 +6,20 @@ use App\Models\Product;
 
 class ProductRepository
 {
+    public function paginate($perPage = 15, $search = null)
+    {
+        $query = Product::with('supplier');
+
+        if ($search) {
+            $query->where('name', 'like', '%' . $search . '%');
+        }
+
+        return $query->latest()->paginate($perPage);
+    }
+
     public function getAll()
     {
-        return Product::all();
+        return Product::with('supplier')->latest()->get();
     }
 
     public function find($id){

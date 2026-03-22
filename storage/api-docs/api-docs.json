@@ -517,6 +517,325 @@
                     }
                 ]
             }
+        },
+        "/api/suppliers": {
+            "get": {
+                "tags": [
+                    "Supplier"
+                ],
+                "summary": "Lấy danh sách nhà cung cấp (có phân trang)",
+                "operationId": "f88254f3e39a99c54e1eefdb1b9e0edd",
+                "parameters": [
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Số lượng bản ghi trên một trang",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 15
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Từ khóa tìm kiếm (tên, mã, SĐT)",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Danh sách nhà cung cấp",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "current_page": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "code": {
+                                                        "type": "string",
+                                                        "example": "NCC001"
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "Công ty Xi măng Vicem Hà Tiên"
+                                                    },
+                                                    "tax_code": {
+                                                        "type": "string",
+                                                        "example": "0101234567"
+                                                    },
+                                                    "email": {
+                                                        "type": "string",
+                                                        "example": "contact@vicem.vn"
+                                                    },
+                                                    "phone": {
+                                                        "type": "string",
+                                                        "example": "02812345678"
+                                                    },
+                                                    "address": {
+                                                        "type": "string",
+                                                        "example": "Số 1, đường A, HCM"
+                                                    },
+                                                    "status": {
+                                                        "type": "boolean",
+                                                        "example": true
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "total": {
+                                            "type": "integer",
+                                            "example": 50
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Supplier"
+                ],
+                "summary": "Tạo mới nhà cung cấp",
+                "operationId": "2249c4bd527aa5329bab18709f452214",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name"
+                                ],
+                                "properties": {
+                                    "code": {
+                                        "type": "string",
+                                        "example": "NCC002"
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Công ty Cổ phần Thép Hòa Phát"
+                                    },
+                                    "tax_code": {
+                                        "type": "string",
+                                        "example": "0901234567"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "contact@hoaphat.com.vn"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "02412345678"
+                                    },
+                                    "address": {
+                                        "type": "string",
+                                        "example": "KCN Phố Nối A, Hưng Yên"
+                                    },
+                                    "status": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "notes": {
+                                        "type": "string",
+                                        "example": "Nhà cung cấp thép chính"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Tạo nhà cung cấp thành công"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/suppliers/{id}": {
+            "get": {
+                "tags": [
+                    "Supplier"
+                ],
+                "summary": "Xem chi tiết nhà cung cấp",
+                "operationId": "db302733b5c42618f0eb3ae3337438cd",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID nhà cung cấp",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Thông tin chi tiết"
+                    },
+                    "404": {
+                        "description": "Không tìm thấy nhà cung cấp"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Supplier"
+                ],
+                "summary": "Cập nhật nhà cung cấp",
+                "operationId": "644d3ef28a0cb08a63e07351b8870f70",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID nhà cung cấp",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "code": {
+                                        "type": "string",
+                                        "example": "NCC002"
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Thép Hòa Phát (Updated)"
+                                    },
+                                    "tax_code": {
+                                        "type": "string",
+                                        "example": "0901234567"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "contact@hoaphat.com.vn"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "02412345678"
+                                    },
+                                    "address": {
+                                        "type": "string",
+                                        "example": "KCN Phố Nối A, Hưng Yên"
+                                    },
+                                    "status": {
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "notes": {
+                                        "type": "string",
+                                        "example": "Tạm dừng nhập hàng"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Cập nhật thành công"
+                    },
+                    "404": {
+                        "description": "Không tìm thấy nhà cung cấp"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Supplier"
+                ],
+                "summary": "Xóa nhà cung cấp",
+                "operationId": "48889f373139d20db00df2ff88f5c3f3",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID nhà cung cấp",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Xóa thành công",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Nhà cung cấp đã được xóa"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Không thể xóa do ràng buộc dữ liệu (đã có sản phẩm)"
+                    },
+                    "404": {
+                        "description": "Không tìm thấy nhà cung cấp"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -536,6 +855,10 @@
         {
             "name": "Product",
             "description": "Quản lý sản phẩm"
+        },
+        {
+            "name": "Supplier",
+            "description": "Quản lý nhà cung cấp"
         }
     ]
 }
