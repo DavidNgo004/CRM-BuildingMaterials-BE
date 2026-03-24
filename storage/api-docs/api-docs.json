@@ -335,6 +335,11 @@
                                                         "type": "string",
                                                         "example": "Nguyễn Văn A"
                                                     },
+                                                    "email": {
+                                                        "type": "string",
+                                                        "example": "nguyenvana@gmail.com",
+                                                        "nullable": true
+                                                    },
                                                     "phone": {
                                                         "type": "string",
                                                         "example": "0901234567"
@@ -391,6 +396,10 @@
                                     "name": {
                                         "type": "string",
                                         "example": "Trần Thị B"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "tranthib@gmail.com"
                                     },
                                     "phone": {
                                         "description": "SĐT 10 số tĩnh",
@@ -492,6 +501,10 @@
                                         "type": "string",
                                         "example": "Trần Thị Bình"
                                     },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "binh@gmail.com"
+                                    },
                                     "phone": {
                                         "type": "string",
                                         "example": "0987654321"
@@ -569,6 +582,254 @@
                     },
                     "404": {
                         "description": "Không tìm thấy khách hàng"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/exports": {
+            "get": {
+                "tags": [
+                    "Export"
+                ],
+                "summary": "Lấy danh sách phiếu xuất kho (có phân trang)",
+                "operationId": "3739fb0db5e1bef9213b402c0a02f562",
+                "parameters": [
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Số lượng bản ghi trên trang",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 15
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Tìm kiếm theo mã phiếu",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Thành công"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Export"
+                ],
+                "summary": "Tạo phiếu xuất mới (Bán hàng/Xuất kho)",
+                "operationId": "724782e964faeab78f32287655556c39",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "details"
+                                ],
+                                "properties": {
+                                    "customer_id": {
+                                        "description": "Nếu truyền customer_id thì sẽ dùng KH có sẵn",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "customer_name": {
+                                        "description": "Tạo KH mới nếu không có customer_id",
+                                        "type": "string",
+                                        "example": "Trần Văn Mới"
+                                    },
+                                    "customer_phone": {
+                                        "description": "Tạo KH mới nếu không có customer_id",
+                                        "type": "string",
+                                        "example": "0998887776"
+                                    },
+                                    "customer_email": {
+                                        "description": "Tạo KH mới nếu không có customer_id",
+                                        "type": "string",
+                                        "example": "[EMAIL_ADDRESS]"
+                                    },
+                                    "customer_address": {
+                                        "description": "Tạo KH mới nếu không có customer_id",
+                                        "type": "string",
+                                        "example": "123 Nguyễn Văn A"
+                                    },
+                                    "discount_amount": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 0
+                                    },
+                                    "note": {
+                                        "type": "string",
+                                        "example": "Bán hàng cho khách A"
+                                    },
+                                    "details": {
+                                        "type": "array",
+                                        "items": {
+                                            "required": [
+                                                "product_id",
+                                                "quantity"
+                                            ],
+                                            "properties": {
+                                                "product_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "quantity": {
+                                                    "type": "integer",
+                                                    "example": 10
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Thành công"
+                    },
+                    "422": {
+                        "description": "Lỗi validate"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/exports/{id}": {
+            "get": {
+                "tags": [
+                    "Export"
+                ],
+                "summary": "Xem chi tiết phiếu xuất",
+                "operationId": "fd05408b73a186aea649353cf0d33059",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Thành công"
+                    },
+                    "404": {
+                        "description": "Không tìm thấy"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Export"
+                ],
+                "summary": "Xóa phiếu xuất (Chỉ dành cho Admin)",
+                "operationId": "32ac081c0f4fe111a7958f148c375144",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Thành công"
+                    },
+                    "400": {
+                        "description": "Không thể xóa"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/exports/{id}/status": {
+            "put": {
+                "tags": [
+                    "Export"
+                ],
+                "summary": "Cập nhật trạng thái phiếu xuất",
+                "operationId": "c37617d1cbf9afe49520fb9781afe0b0",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "status"
+                                ],
+                                "properties": {
+                                    "status": {
+                                        "type": "string",
+                                        "enum": [
+                                            "pending",
+                                            "approved",
+                                            "completed",
+                                            "cancelled"
+                                        ],
+                                        "example": "approved"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Cập nhật thành công"
+                    },
+                    "400": {
+                        "description": "Lỗi trạng thái"
                     }
                 },
                 "security": [
@@ -1451,6 +1712,10 @@
         {
             "name": "Customer",
             "description": "Quản lý khách hàng"
+        },
+        {
+            "name": "Export",
+            "description": "Quản lý Xuất Kho (Phiếu Xuất / Bán Hàng)"
         },
         {
             "name": "Import",

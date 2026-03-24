@@ -38,4 +38,12 @@ Route::middleware('auth:api')->group(function(){
     Route::apiResource('imports', ImportController::class)->except(['update']);
     Route::put('imports/{import}/status', [ImportController::class, 'changeStatus']);
 });
+
+// Export routes
+use App\Http\Controllers\ExportController;
+Route::middleware(['auth:api', 'role:admin,warehouse_staff'])->group(function(){
+    Route::apiResource('exports', ExportController::class)->except(['update', 'destroy']);
+    Route::delete('exports/{export}', [ExportController::class, 'destroy'])->middleware('role:admin');
+    Route::put('exports/{export}/status', [ExportController::class, 'changeStatus']);
+});
 ?>

@@ -34,11 +34,11 @@ class ImportService
     {
         return DB::transaction(function () use ($data) {
             $total_price = 0;
-            
+
             foreach ($data['details'] as $detail) {
                 $total_price += ($detail['unit_price'] * $detail['quantity']);
             }
-            
+
             $discount = $data['discount_amount'] ?? 0;
             $grand_total = max(0, $total_price - $discount);
 
@@ -78,7 +78,7 @@ class ImportService
             $import->status = $status;
             $import->save();
 
-            // 1. Tự động gửi Email khi trạng thái chuyển qua 'approved' (Admin duyệt phiếu cho Kho)
+            // Tự động gửi Email khi trạng thái chuyển qua 'approved' (Admin duyệt phiếu cho Kho)
             if ($status === 'approved' && $oldStatus === 'pending') {
                 // Gom nhóm sản phẩm theo Nhà Nung Cấp
                 $supplierGroups = [];
@@ -105,22 +105,38 @@ class ImportService
                     if (!empty($supplier->email)) {
                         try {
                             Mail::to($supplier->email)
-                                 ->send(new OrderSupplierMail($import, $supplier, $data['products']));
-                        } catch (\Exception $e) {
-                             \Illuminate\Support\Facades\Log::error('Mail Error: ' . $e->getMessage());
-                             // Nuốt lỗi gửi mail để không gãy transaction khi smtp lỗi
+                                ->send(new OrderSupplierMail($import, $supplier, $data['products']));
+                        }
+                        catch (\Exception $e) {
+                            \Illuminate\Support\Facades\Log::error('Mail Error: ' . $e->getMessage());
+                        // Nuốt lỗi gửi mail để không gãy transaction khi smtp lỗi
                         }
                     }
                 }
             }
 
-            // 2. Khi hàng vật lý đã về kho -> Cập nhật Tồn kho (Completed)
+            // Khi hàng vật lý đã về kho -> Cập nhật Tồn kho (Completed)
             if ($status === 'completed') {
                 foreach ($import->details as $detail) {
                     $product = Product::find($detail->product_id);
                     if ($product) {
                         $product->stock += $detail->quantity;
+
+                        // Cập nhật giá nhập mới và tịnh tiến giá bán để giữ nguyên biên lợi nhuận
+                        if ($detail->unit_price != $product->import_price) {
+                            $margin = $product->sell_price - $product->import_price;
+                            $product->import_price = $detail->unit_price; // unit_price của import detail là giá nhập mới
+                            $product->sell_price = $product->import_price + $margin;
+                        }
+
                         $product->save();
+
+                        \App\Models\InventoryLog::create([
+                            'product_id' => $product->id,
+                            'type' => 'import',
+                            'quantity' => $detail->quantity,
+                            'created_by' => auth()->id() ?? 1,
+                        ]);
                     }
                 }
             }

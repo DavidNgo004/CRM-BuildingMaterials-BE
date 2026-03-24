@@ -47,6 +47,7 @@ class CustomerSwagger
      *                     @OA\Property(property="id", type="integer", example=1),
      *                     @OA\Property(property="code", type="string", example="KH-A1B2C3"),
      *                     @OA\Property(property="name", type="string", example="Nguyễn Văn A"),
+     *                     @OA\Property(property="email", type="string", example="nguyenvana@gmail.com", nullable=true),
      *                     @OA\Property(property="phone", type="string", example="0901234567"),
      *                     @OA\Property(property="address", type="string", example="Quận 1, TPHCM"),
      *                     @OA\Property(property="customer_type", type="string", example="wholesale"),
@@ -72,6 +73,7 @@ class CustomerSwagger
      *         @OA\JsonContent(
      *             required={"name", "phone"},
      *             @OA\Property(property="name", type="string", example="Trần Thị B"),
+     *             @OA\Property(property="email", type="string", example="tranthib@gmail.com"),
      *             @OA\Property(property="phone", type="string", example="0987654321", description="SĐT 10 số tĩnh"),
      *             @OA\Property(property="address", type="string", example="Quận 1, TPHCM"),
      *             @OA\Property(property="customer_type", type="string", example="retail"),
@@ -125,6 +127,7 @@ class CustomerSwagger
      *         required=true,
      *         @OA\JsonContent(
      *             @OA\Property(property="name", type="string", example="Trần Thị Bình"),
+     *             @OA\Property(property="email", type="string", example="binh@gmail.com"),
      *             @OA\Property(property="phone", type="string", example="0987654321"),
      *             @OA\Property(property="address", type="string", example="Quận 3, TP. HCM"),
      *             @OA\Property(property="customer_type", type="string", example="retail"),

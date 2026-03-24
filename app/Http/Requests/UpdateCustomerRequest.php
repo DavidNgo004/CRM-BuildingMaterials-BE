@@ -16,6 +16,7 @@ class UpdateCustomerRequest extends FormRequest
         $id = $this->route('customer') ?? $this->route('id');
         return [
             'name' => 'required|string|max:255',
+            'email' => 'nullable|email|unique:customers,email,' . $id,
             'phone' => 'required|digits:10|unique:customers,phone,' . $id,
             'address' => 'nullable|string',
             'customer_type' => 'nullable|string|max:50|in:wholesale,retail',
