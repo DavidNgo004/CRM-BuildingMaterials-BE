@@ -16,6 +16,7 @@ class Product extends Model
         'import_price',
         'sell_price',
         'stock',
+        'reorder_level',
         'status',
     ];
 

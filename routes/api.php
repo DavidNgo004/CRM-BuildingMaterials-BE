@@ -46,4 +46,20 @@ Route::middleware(['auth:api', 'role:admin,warehouse_staff'])->group(function(){
     Route::delete('exports/{export}', [ExportController::class, 'destroy'])->middleware('role:admin');
     Route::put('exports/{export}/status', [ExportController::class, 'changeStatus']);
 });
+
+// Expense routes
+use App\Http\Controllers\ExpenseController;
+Route::middleware(['auth:api', 'role:admin'])->group(function(){
+    Route::apiResource('expenses', ExpenseController::class);
+});
+
+// Dashboard routes
+use App\Http\Controllers\DashboardController;
+Route::middleware('auth:api')->prefix('dashboard')->group(function(){
+    Route::get('/kpi-cards',         [DashboardController::class, 'kpiCards']);
+    Route::get('/charts',            [DashboardController::class, 'charts']);
+    Route::get('/recent-activities', [DashboardController::class, 'recentActivities']);
+    Route::get('/alerts',            [DashboardController::class, 'alerts']);
+    Route::get('/mini-reports',      [DashboardController::class, 'miniReports']);
+});
 ?>

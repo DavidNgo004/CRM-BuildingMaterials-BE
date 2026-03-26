@@ -591,6 +591,611 @@
                 ]
             }
         },
+        "/api/dashboard/kpi-cards": {
+            "get": {
+                "tags": [
+                    "Dashboard"
+                ],
+                "summary": "Lấy dữ liệu KPI Cards (Doanh thu, Lợi nhuận, Đơn hàng, Tồn kho thấp)",
+                "description": "Hỗ trợ filter theo: today | this_week | this_month | this_year | custom (start_date + end_date)",
+                "operationId": "ed269c139a0f510137efe5eb0e3da45d",
+                "parameters": [
+                    {
+                        "name": "period",
+                        "in": "query",
+                        "description": "Khoảng thời gian (today, this_week, this_month, this_year)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "today",
+                                "this_week",
+                                "this_month",
+                                "this_year"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "description": "Ngày bắt đầu (custom, format: YYYY-MM-DD)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "description": "Ngày kết thúc (custom, format: YYYY-MM-DD)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Thành công",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "revenue": {
+                                            "description": "Doanh thu trong kỳ",
+                                            "type": "integer",
+                                            "example": 42000000
+                                        },
+                                        "revenue_today": {
+                                            "description": "Doanh thu hôm nay",
+                                            "type": "integer",
+                                            "example": 5000000
+                                        },
+                                        "cogs": {
+                                            "description": "Giá vốn hàng bán",
+                                            "type": "integer",
+                                            "example": 28000000
+                                        },
+                                        "expenses": {
+                                            "description": "Chi phí vận hành",
+                                            "type": "integer",
+                                            "example": 3000000
+                                        },
+                                        "profit": {
+                                            "description": "Lợi nhuận ròng",
+                                            "type": "integer",
+                                            "example": 11000000
+                                        },
+                                        "export_count": {
+                                            "type": "integer",
+                                            "example": 12
+                                        },
+                                        "export_count_today": {
+                                            "type": "integer",
+                                            "example": 3
+                                        },
+                                        "import_count": {
+                                            "type": "integer",
+                                            "example": 5
+                                        },
+                                        "import_count_today": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "low_stock_count": {
+                                            "description": "Số sản phẩm sắp hết hàng",
+                                            "type": "integer",
+                                            "example": 4
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/dashboard/charts": {
+            "get": {
+                "tags": [
+                    "Dashboard"
+                ],
+                "summary": "Biểu đồ: Doanh thu theo ngày/tháng, Lợi nhuận, Top sản phẩm, Phân loại tồn kho",
+                "operationId": "384061209e4281916a5aee9924265336",
+                "parameters": [
+                    {
+                        "name": "period",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "today",
+                                "this_week",
+                                "this_month",
+                                "this_year"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Thành công",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "revenue_chart": {
+                                            "description": "Doanh thu theo ngày/tháng",
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        },
+                                        "profit_chart": {
+                                            "description": "Lợi nhuận theo ngày/tháng",
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        },
+                                        "top_products": {
+                                            "description": "Top 5 sản phẩm bán chạy nhất (SL)",
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        },
+                                        "revenue_by_product": {
+                                            "description": "Tỷ trọng doanh thu theo sản phẩm (%)",
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        },
+                                        "inventory_breakdown": {
+                                            "description": "Phân loại tồn kho: low, normal, overstock",
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/dashboard/recent-activities": {
+            "get": {
+                "tags": [
+                    "Dashboard"
+                ],
+                "summary": "Lịch sử hoạt động gần nhất (Xuất/Nhập kho)",
+                "operationId": "ba8bcf94e058cbed95993a78cd9fd8bb",
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Số kết quả trả về (mặc định 15)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 15
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Thành công"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/dashboard/alerts": {
+            "get": {
+                "tags": [
+                    "Dashboard"
+                ],
+                "summary": "Cảnh báo thông minh & Gợi ý AI (Hàng sắp hết, bán chậm, tồn kho cao, đề xuất nhập hàng)",
+                "operationId": "7cc84b029ec6af7c6f4e0d4a52621242",
+                "responses": {
+                    "200": {
+                        "description": "Thành công",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "alerts": {
+                                            "description": "Danh sách cảnh báo",
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "type": {
+                                                        "type": "string",
+                                                        "example": "low_stock"
+                                                    },
+                                                    "level": {
+                                                        "type": "string",
+                                                        "example": "warning"
+                                                    },
+                                                    "message": {
+                                                        "type": "string",
+                                                        "example": "⚠️ Xi măng sắp hết hàng (còn: 5 bao)"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "suggestions": {
+                                            "description": "Gợi ý nhập hàng từ AI",
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "product_name": {
+                                                        "type": "string",
+                                                        "example": "Xi măng"
+                                                    },
+                                                    "suggested_qty": {
+                                                        "type": "integer",
+                                                        "example": 40
+                                                    },
+                                                    "message": {
+                                                        "type": "string",
+                                                        "example": "💡 Gợi ý nhập thêm 40 bao Xi măng"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/dashboard/mini-reports": {
+            "get": {
+                "tags": [
+                    "Dashboard"
+                ],
+                "summary": "Mini Reports: Top Khách hàng & Top Nhà cung cấp",
+                "operationId": "0f474b28cf1ce2c87bf2b6f9ac192c1f",
+                "parameters": [
+                    {
+                        "name": "period",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "today",
+                                "this_week",
+                                "this_month",
+                                "this_year"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Thành công",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "top_customers": {
+                                            "description": "Top 5 khách hàng mua nhiều nhất",
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        },
+                                        "top_suppliers": {
+                                            "description": "Top 5 nhà cung cấp đặt hàng nhiều nhất",
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/expenses": {
+            "get": {
+                "tags": [
+                    "Expense"
+                ],
+                "summary": "Lấy danh sách khoản chi (có phân trang)",
+                "operationId": "73c5fb697fb950b1dc831f12faf028b6",
+                "parameters": [
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Số lượng bản ghi trên trang",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 15
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Tìm kiếm theo tên khoản chi",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Thành công"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Expense"
+                ],
+                "summary": "Tạo khoản chi mới",
+                "operationId": "97c8d8eca2b158ac54a126a0ebb9c084",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "title",
+                                    "amount",
+                                    "expense_date"
+                                ],
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "example": "Tiền điện tháng 3"
+                                    },
+                                    "amount": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 5000000
+                                    },
+                                    "expense_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2026-03-24"
+                                    },
+                                    "note": {
+                                        "type": "string",
+                                        "example": "Thanh toán qua chuyển khoản"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Thành công"
+                    },
+                    "422": {
+                        "description": "Lỗi validate"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/expenses/{id}": {
+            "get": {
+                "tags": [
+                    "Expense"
+                ],
+                "summary": "Xem chi tiết khoản chi",
+                "operationId": "2ca235162ca13b6d3720727c8cdb84a0",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Thành công"
+                    },
+                    "404": {
+                        "description": "Không tìm thấy"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Expense"
+                ],
+                "summary": "Cập nhật khoản chi",
+                "operationId": "152dcba241b60d883e8bd324bb5aa495",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "title",
+                                    "amount",
+                                    "expense_date"
+                                ],
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "example": "Tiền điện tháng 3 (Đã sửa)"
+                                    },
+                                    "amount": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 5500000
+                                    },
+                                    "expense_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2026-03-24"
+                                    },
+                                    "note": {
+                                        "type": "string",
+                                        "example": "Có tính thêm phí VAT"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Thành công"
+                    },
+                    "404": {
+                        "description": "Không tìm thấy"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Expense"
+                ],
+                "summary": "Xóa khoản chi",
+                "operationId": "d7ffd38c79b35136943e8aa6788e1a65",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Thành công"
+                    },
+                    "404": {
+                        "description": "Không tìm thấy"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/exports": {
             "get": {
                 "tags": [
@@ -1712,6 +2317,14 @@
         {
             "name": "Customer",
             "description": "Quản lý khách hàng"
+        },
+        {
+            "name": "Dashboard",
+            "description": "Dashboard thống kê tổng quan - KPI, Biểu đồ, Cảnh báo, AI Gợi ý"
+        },
+        {
+            "name": "Expense",
+            "description": "Quản lý chi phí vận hành (Lương, Điện, Vận chuyển...)"
         },
         {
             "name": "Export",
