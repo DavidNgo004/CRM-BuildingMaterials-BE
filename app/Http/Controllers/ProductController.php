@@ -25,9 +25,13 @@ class ProductController extends Controller
     }
 
     public function show($id){
-        // Assuming find method in service calls repository->find
-        // For brevity, skipping if not heavily used, but good to add if needed.
-        // I will add a simple return if they need it.
+        $product = $this->productService->find($id);
+
+        if (!$product) {
+            return response()->json(['message' => 'Không tìm thấy sản phẩm'], 404);
+        }
+
+        return response()->json($product);
     }
 
     public function store(StoreProductRequest $request){

@@ -15,6 +15,7 @@ class StoreExpenseRequest extends FormRequest
     {
         return [
             'title' => 'required|string|max:255',
+            // 'category' => 'required|string|in:salary,electricity_water,transport,other',
             'amount' => 'required|numeric|min:0',
             'expense_date' => 'required|date',
             'note' => 'nullable|string',

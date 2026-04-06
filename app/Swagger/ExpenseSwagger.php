@@ -40,7 +40,9 @@ class ExpenseSwagger
      *     )
      * )
      */
-    public function index() {}
+    public function index()
+    {
+    }
 
     /**
      * @OA\Post(
@@ -51,8 +53,9 @@ class ExpenseSwagger
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             required={"title", "amount", "expense_date"},
+     *             required={"title", "category", "amount", "expense_date"},
      *             @OA\Property(property="title", type="string", example="Tiền điện tháng 3"),
+     *             @OA\Property(property="category", type="string", enum={"salary", "electricity_water", "transport", "other"}, example="electricity_water"),
      *             @OA\Property(property="amount", type="number", format="float", example=5000000),
      *             @OA\Property(property="expense_date", type="string", format="date", example="2026-03-24"),
      *             @OA\Property(property="note", type="string", example="Thanh toán qua chuyển khoản")
@@ -62,7 +65,9 @@ class ExpenseSwagger
      *     @OA\Response(response=422, description="Lỗi validate")
      * )
      */
-    public function store() {}
+    public function store()
+    {
+    }
 
     /**
      * @OA\Get(
@@ -80,7 +85,9 @@ class ExpenseSwagger
      *     @OA\Response(response=404, description="Không tìm thấy")
      * )
      */
-    public function show() {}
+    public function show()
+    {
+    }
 
     /**
      * @OA\Put(
@@ -108,7 +115,9 @@ class ExpenseSwagger
      *     @OA\Response(response=404, description="Không tìm thấy")
      * )
      */
-    public function update() {}
+    public function update()
+    {
+    }
 
     /**
      * @OA\Delete(
@@ -126,5 +135,7 @@ class ExpenseSwagger
      *     @OA\Response(response=404, description="Không tìm thấy")
      * )
      */
-    public function destroy() {}
+    public function destroy()
+    {
+    }
 }

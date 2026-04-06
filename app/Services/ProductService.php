@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Repositories\ProductRepository;
+use Illuminate\Support\Facades\Auth;
 
 class ProductService
 {
@@ -21,6 +22,11 @@ class ProductService
     public function getAll()
     {
         return $this->productRepository->getAll();
+    }
+
+    public function find($id)
+    {
+        return $this->productRepository->find($id);
     }
 
 
@@ -42,12 +48,21 @@ class ProductService
 
     public function delete($id)
     {
+        if (Auth::user()->role != 'admin') {
+            return [
+                'status' => false,
+                'message' => 'Unauthorized'
+            ];
+        }
         $product = $this->productRepository->find($id);
 
         if (!$product) {
             return false;
         }
-
+        //chặn xóa nếu đã có export order  hoặc import order liên kết
+        if ($product->exportDetails()->count() > 0 || $product->importDetails()->count() > 0) {
+            throw new \Exception('Không thể xóa sản phẩm đã có trong đơn xuất hoặc nhập.');
+        }
         return $this->productRepository->delete($product);
     }
 }

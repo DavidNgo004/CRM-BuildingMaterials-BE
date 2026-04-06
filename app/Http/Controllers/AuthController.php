@@ -62,6 +62,37 @@ class AuthController extends Controller
 
     }
 
+    public function updateStaff(\App\Http\Requests\UpdateStaffRequest $request, $id)
+    {
+        $result = $this->authService->updateStaff($request, $id);
+
+        if(!$result['status']){
+            return response()->json([
+                'message' => $result['message']
+            ], 403);
+        }
+
+        return response()->json([
+            'message' => 'Cập nhật nhân viên thành công',
+            'data' => $result['data']
+        ]);
+    }
+
+    public function deleteStaff($id)
+    {
+        $result = $this->authService->deleteStaff($id);
+
+        if(!$result['status']){
+            return response()->json([
+                'message' => $result['message']
+            ], 403);
+        }
+
+        return response()->json([
+            'message' => 'Xoá nhân viên thành công'
+        ]);
+    }
+
     public function getStaffs()
     {
 

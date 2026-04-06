@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Repositories\CustomerRepository;
+use Illuminate\Support\Facades\Auth;
 
 class CustomerService
 {
@@ -46,6 +47,13 @@ class CustomerService
 
     public function delete($id)
     {
+        if (Auth::user()->role != 'admin') {
+            return [
+                'status' => false,
+                'message' => 'Unauthorized'
+            ];
+        }
+
         $customer = $this->customerRepository->find($id);
 
         if (!$customer) {
@@ -53,6 +61,12 @@ class CustomerService
         }
 
         // Logic check: có thể chặn xóa nếu đã có Order liên kết (sắp tới sẽ triển khai)
+        if ($customer->exportOrders->count() > 0) {
+            return [
+                'status' => false,
+                'message' => 'Khách hàng đã có đơn xuất hàng'
+            ];
+        }
         // Hiện tại chưa có module Order, chúng ta để tạm logic delete
         return $this->customerRepository->delete($customer);
     }

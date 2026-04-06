@@ -69,6 +69,57 @@ class AuthService
         ];
     }
 
+    public function updateStaff($request, $id)
+    {
+        if(Auth::user()->role !== 'admin'){
+            return [
+                'status' => false,
+                'message' => 'Unauthorized'
+            ];
+        }
+
+        $user = $this->userRepository->find($id);
+
+        if(!$user || $user->role !== 'warehouse_staff'){
+             return [
+                'status' => false,
+                'message' => 'Resource not found or invalid type'
+            ];
+        }
+
+        $user = $this->userRepository->update($id, $request->validated());
+
+        return [
+            'status' => true,
+            'data' => $user
+        ];
+    }
+
+    public function deleteStaff($id)
+    {
+        if(Auth::user()->role !== 'admin'){
+            return [
+                'status' => false,
+                'message' => 'Unauthorized'
+            ];
+        }
+
+        $user = $this->userRepository->find($id);
+
+        if(!$user || $user->role !== 'warehouse_staff'){
+             return [
+                'status' => false,
+                'message' => 'Resource not found or invalid type'
+            ];
+        }
+
+        $this->userRepository->delete($user);
+
+        return [
+            'status' => true,
+        ];
+    }
+
     // Get List Staffs
     public function listStaff()
     {

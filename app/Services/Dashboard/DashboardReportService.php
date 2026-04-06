@@ -71,18 +71,19 @@ class DashboardReportService
     {
         return DB::table('import_details')
             ->join('imports',   'imports.id',   '=', 'import_details.import_id')
-            ->join('suppliers', 'suppliers.id', '=', 'import_details.supplier_id')
+            ->join('products',  'products.id',  '=', 'import_details.product_id')
+            ->join('suppliers', 'suppliers.id', '=', 'products.supplier_id')
             ->where('imports.status', 'completed')
             ->whereBetween('imports.updated_at', [$from, $to])
             ->select(
-                'import_details.supplier_id',
+                'suppliers.id as supplier_id',
                 'suppliers.name',
                 'suppliers.code',
                 'suppliers.phone',
                 DB::raw('SUM(import_details.unit_price * import_details.quantity) as total_value'),
                 DB::raw('COUNT(DISTINCT imports.id) as order_count')
             )
-            ->groupBy('import_details.supplier_id', 'suppliers.name', 'suppliers.code', 'suppliers.phone')
+            ->groupBy('suppliers.id', 'suppliers.name', 'suppliers.code', 'suppliers.phone')
             ->orderByDesc('total_value')
             ->limit(5)
             ->get()

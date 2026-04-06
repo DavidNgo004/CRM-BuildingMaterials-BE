@@ -107,6 +107,49 @@ class AuthSwagger
      */
     public function createStaff() {}
 
+     /**
+     * @OA\Put(
+     *     path="/api/staffs/{id}",
+     *     summary="Admin Cập nhật tài khoản nhân viên",
+     *     tags={"Auth"},
+     *     security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="name", type="string", example="Nhân viên kho 1 sửa"),
+     *             @OA\Property(property="email", type="string", example="staff123@gmail.com")
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="Thành công"),
+     *     @OA\Response(response=403, description="Không có quyền")
+     * )
+     */
+    public function updateStaff() {}
+
+    /**
+     * @OA\Delete(
+     *     path="/api/staffs/{id}",
+     *     summary="Admin Xoá tài khoản nhân viên",
+     *     tags={"Auth"},
+     *     security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(response=200, description="Thành công"),
+     *     @OA\Response(response=403, description="Không có quyền")
+     * )
+     */
+    public function deleteStaff() {}
+
     /**
      * Lấy thông tin profile của người dùng đã xác thực
      * @OA\Get(

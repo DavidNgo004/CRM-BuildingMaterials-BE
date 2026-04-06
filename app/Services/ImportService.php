@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Mail\OrderSupplierMail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Auth;
 use Exception;
 
 class ImportService
@@ -106,10 +107,9 @@ class ImportService
                         try {
                             Mail::to($supplier->email)
                                 ->send(new OrderSupplierMail($import, $supplier, $data['products']));
-                        }
-                        catch (\Exception $e) {
+                        } catch (\Exception $e) {
                             \Illuminate\Support\Facades\Log::error('Mail Error: ' . $e->getMessage());
-                        // Nuốt lỗi gửi mail để không gãy transaction khi smtp lỗi
+                            // Nuốt lỗi gửi mail để không gãy transaction khi smtp lỗi
                         }
                     }
                 }
@@ -147,6 +147,9 @@ class ImportService
 
     public function delete($id)
     {
+        if (Auth::user()->role !== 'admin') {
+            throw new Exception('Bạn không có quyền xóa phiếu nhập.');
+        }
         return DB::transaction(function () use ($id) {
             $import = Import::findOrFail($id);
             if ($import->status !== 'pending') {

@@ -24,4 +24,14 @@ class Product extends Model
     {
         return $this->belongsTo(Supplier::class, 'supplier_id', 'id');
     }
+
+    public function importDetails()
+    {
+        return $this->hasMany(ImportDetail::class);
+    }
+
+    public function exportDetails()
+    {
+        return $this->hasMany(ExportDetail::class);
+    }
 }

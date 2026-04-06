@@ -8,6 +8,8 @@ Route::post('/login',[AuthController::class,'login']);
 // Protected Auth routes
 Route::middleware('auth:api')->group(function(){
     Route::post('/create-staff',[AuthController::class,'createStaff']);
+    Route::put('/staffs/{id}',[AuthController::class,'updateStaff']);
+    Route::delete('/staffs/{id}',[AuthController::class,'deleteStaff']);
     Route::get('/profile',[AuthController::class,'profile']);
     Route::get('/staffs',[AuthController::class,'getStaffs']);
     Route::post('/change-password',[AuthController::class,'changePassword']);
@@ -15,6 +17,7 @@ Route::middleware('auth:api')->group(function(){
 // Product routes
 Route::middleware('auth:api')->group(function(){
     Route::get('/products',[ProductController::class,'index']);
+    Route::get('/products/{id}',[ProductController::class,'show']);
     Route::post('/products',[ProductController::class,'store']);
     Route::put('/products/{id}',[ProductController::class,'update']);
     Route::delete('/products/{id}',[ProductController::class,'destroy']);
@@ -51,6 +54,12 @@ Route::middleware(['auth:api', 'role:admin,warehouse_staff'])->group(function(){
 use App\Http\Controllers\ExpenseController;
 Route::middleware(['auth:api', 'role:admin'])->group(function(){
     Route::apiResource('expenses', ExpenseController::class);
+});
+
+// Inventory Logs routes
+use App\Http\Controllers\InventoryLogController;
+Route::middleware('auth:api')->group(function(){
+    Route::get('/inventory-logs', [InventoryLogController::class, 'index']);
 });
 
 // Dashboard routes

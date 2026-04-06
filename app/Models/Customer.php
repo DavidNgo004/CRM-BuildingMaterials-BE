@@ -31,4 +31,9 @@ class Customer extends Model
             }
         });
     }
+
+    public function exportOrders()
+    {
+        return $this->hasMany(Export::class, 'id', 'customer_id');
+    }
 }

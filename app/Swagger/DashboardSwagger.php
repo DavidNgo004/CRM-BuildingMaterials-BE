@@ -40,7 +40,9 @@ class DashboardSwagger
      *     )
      * )
      */
-    public function kpiCards() {}
+    public function kpiCards()
+    {
+    }
 
     /**
      * @OA\Get(
@@ -64,7 +66,9 @@ class DashboardSwagger
      *     )
      * )
      */
-    public function charts() {}
+    public function charts()
+    {
+    }
 
     /**
      * @OA\Get(
@@ -76,7 +80,9 @@ class DashboardSwagger
      *     @OA\Response(response=200, description="Thành công")
      * )
      */
-    public function recentActivities() {}
+    public function recentActivities()
+    {
+    }
 
     /**
      * @OA\Get(
@@ -102,7 +108,9 @@ class DashboardSwagger
      *     )
      * )
      */
-    public function alerts() {}
+    public function alerts()
+    {
+    }
 
     /**
      * @OA\Get(
@@ -123,5 +131,7 @@ class DashboardSwagger
      *     )
      * )
      */
-    public function miniReports() {}
+    public function miniReports()
+    {
+    }
 }

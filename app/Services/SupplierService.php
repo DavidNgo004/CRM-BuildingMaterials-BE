@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Repositories\SupplierRepository;
+use Illuminate\Support\Facades\Auth;
 
 class SupplierService
 {
@@ -30,6 +31,12 @@ class SupplierService
 
     public function create($request)
     {
+        if (Auth::user()->role != 'admin') {
+            return [
+                'status' => false,
+                'message' => 'Unauthorized'
+            ];
+        }
         return $this->supplierRepository->create($request->validated());
     }
 
@@ -46,6 +53,12 @@ class SupplierService
 
     public function delete($id)
     {
+        if (Auth::user()->role != 'admin') {
+            return [
+                'status' => false,
+                'message' => 'Unauthorized'
+            ];
+        }
         $supplier = $this->supplierRepository->find($id);
 
         if (!$supplier) {

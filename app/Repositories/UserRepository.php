@@ -22,6 +22,16 @@ class UserRepository
         return null;
     }
 
+    public function find($id)
+    {
+        return User::find($id);
+    }
+
+    public function delete($user)
+    {
+        return $user->delete();
+    }
+
     public function findByEmail($email)
     {
         return User::where('email', $email)->first();

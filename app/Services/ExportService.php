@@ -40,12 +40,12 @@ class ExportService
             $customerId = $data['customer_id'] ?? null;
             if (!$customerId) {
                 $customer = \App\Models\Customer::firstOrCreate(
-                ['phone' => $data['customer_phone']],
-                [
-                    'name' => $data['customer_name'],
-                    'email' => $data['customer_email'] ?? null,
-                    'address' => $data['customer_address'] ?? null,
-                ]
+                    ['phone' => $data['customer_phone']],
+                    [
+                        'name' => $data['customer_name'],
+                        'email' => $data['customer_email'] ?? null,
+                        'address' => $data['customer_address'] ?? null,
+                    ]
                 );
                 $customerId = $customer->id;
             }
@@ -107,14 +107,13 @@ class ExportService
                 if (!empty($customer->email)) {
                     try {
                         Mail::to($customer->email)->send(new ExportApprovedMail($export));
-                    }
-                    catch (\Exception $e) {
+                    } catch (\Exception $e) {
                         \Illuminate\Support\Facades\Log::error('Mail Error: ' . $e->getMessage());
                     }
                 }
             }
 
-            // Khi hàng đã xuất -> Cập nhật Tồn kho (Completed)
+            // Khi hàng đã giao -> Cập nhật Tồn kho (approved)
             if ($status === 'approved') {
                 foreach ($export->details as $detail) {
                     $product = Product::find($detail->product_id);

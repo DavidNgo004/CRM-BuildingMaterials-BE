@@ -168,6 +168,88 @@
                 ]
             }
         },
+        "/api/staffs/{id}": {
+            "put": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Admin Cập nhật tài khoản nhân viên",
+                "operationId": "8a54fb35dd233b6aa11ceff7ec4312a7",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Nhân viên kho 1 sửa"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "staff123@gmail.com"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Thành công"
+                    },
+                    "403": {
+                        "description": "Không có quyền"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Admin Xoá tài khoản nhân viên",
+                "operationId": "9ecc341f1d1429c8825c172882cec3c9",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Thành công"
+                    },
+                    "403": {
+                        "description": "Không có quyền"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/staffs": {
             "get": {
                 "tags": [
@@ -1026,6 +1108,7 @@
                             "schema": {
                                 "required": [
                                     "title",
+                                    "category",
                                     "amount",
                                     "expense_date"
                                 ],
@@ -1033,6 +1116,16 @@
                                     "title": {
                                         "type": "string",
                                         "example": "Tiền điện tháng 3"
+                                    },
+                                    "category": {
+                                        "type": "string",
+                                        "enum": [
+                                            "salary",
+                                            "electricity_water",
+                                            "transport",
+                                            "other"
+                                        ],
+                                        "example": "electricity_water"
                                     },
                                     "amount": {
                                         "type": "number",
