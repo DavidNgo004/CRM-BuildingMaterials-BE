@@ -34,13 +34,13 @@ class DashboardKpiService
         [$todayFrom, $todayTo] = [Carbon::today()->startOfDay(), Carbon::today()->endOfDay()];
 
         // --- Doanh thu: tổng grand_total các phiếu XUẤT đã hoàn thành trong kỳ ---
-        $revenue = Export::where('status', 'completed')
+        $revenue = Export::whereIn('status', ['approved', 'completed'])
             ->whereBetween('updated_at', [$from, $to])
             ->sum('grand_total');
 
         // --- Giá vốn: import_price * quantity của các sản phẩm trong phiếu xuất hoàn thành ---
         $cogs = ExportDetail::whereHas('export', fn ($q) =>
-            $q->where('status', 'completed')->whereBetween('updated_at', [$from, $to])
+            $q->whereIn('status', ['approved', 'completed'])->whereBetween('updated_at', [$from, $to])
         )->selectRaw('SUM(import_price * quantity) as total_cogs')
          ->value('total_cogs') ?? 0;
 
@@ -51,15 +51,15 @@ class DashboardKpiService
         $profit = $revenue - $cogs - $expenses;
 
         // --- Doanh thu hôm nay ---
-        $revenueToday = Export::where('status', 'completed')
+        $revenueToday = Export::whereIn('status', ['approved', 'completed'])
             ->whereBetween('updated_at', [$todayFrom, $todayTo])
             ->sum('grand_total');
 
         // --- Số đơn xuất / nhập hoàn thành trong kỳ và hôm nay ---
-        $exportCount      = Export::where('status', 'completed')->whereBetween('updated_at', [$from, $to])->count();
-        $importCount      = Import::where('status', 'completed')->whereBetween('updated_at', [$from, $to])->count();
-        $exportCountToday = Export::where('status', 'completed')->whereBetween('updated_at', [$todayFrom, $todayTo])->count();
-        $importCountToday = Import::where('status', 'completed')->whereBetween('updated_at', [$todayFrom, $todayTo])->count();
+        $exportCount      = Export::whereIn('status', ['approved', 'completed'])->whereBetween('updated_at', [$from, $to])->count();
+        $importCount      = Import::whereIn('status', ['completed'])->whereBetween('updated_at', [$from, $to])->count();
+        $exportCountToday = Export::whereIn('status', ['approved', 'completed'])->whereBetween('updated_at', [$todayFrom, $todayTo])->count();
+        $importCountToday = Import::whereIn('status', ['completed'])->whereBetween('updated_at', [$todayFrom, $todayTo])->count();
 
         // --- Số sản phẩm sắp hết hàng (stock <= reorder_level) ---
         $lowStockCount = Product::whereColumn('stock', '<=', 'reorder_level')->count();

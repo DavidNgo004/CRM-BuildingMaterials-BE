@@ -26,6 +26,16 @@ class ProductRepository
         return Product::find($id);
     }
 
+    public function findByName($name)
+    {
+        return Product::where('name', $name)->first();
+    }
+
+    public function increaseStock($product, $quantity)
+    {
+        return $product->increment('stock', $quantity);
+    }
+
     public function create($data)
     {
         return Product::create($data);

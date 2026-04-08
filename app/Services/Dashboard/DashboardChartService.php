@@ -38,7 +38,8 @@ class DashboardChartService
     }
 
     /**
-     * Biểu đồ doanh thu theo ngày (≤31 ngày) hoặc theo tháng (>31 ngày).
+     * Biểu đồ doanh thu theo ngày (≤31 ngày) hoặc theo tháng (>31 ngày). 
+     * lấy trạng thái "approved" và "completed" để phản ánh doanh thu thực tế đã ghi nhận và trừ trạng thái "cancelled".
      */
     private function revenueChart(Carbon $from, Carbon $to): array
     {
@@ -46,7 +47,7 @@ class DashboardChartService
 
         return DB::table('exports')
             ->selectRaw("DATE_FORMAT(updated_at, '{$group}') as {$label}, SUM(grand_total) as revenue")
-            ->where('status', 'completed')
+            ->whereIn('status', ['approved', 'completed'])
             ->whereBetween('updated_at', [$from, $to])
             ->groupBy($label)
             ->orderBy($label)
@@ -57,6 +58,7 @@ class DashboardChartService
     /**
      * Biểu đồ lợi nhuận gộp (Revenue - COGS) theo ngày/tháng.
      * (Chi phí vận hành phân bổ đều theo kỳ để giữ đơn giản)
+     * lấy trạng thái "approved" và "completed" để phản ánh doanh thu thực tế đã ghi nhận và trừ trạng thái "cancelled".
      */
     private function profitChart(Carbon $from, Carbon $to): array
     {
@@ -68,7 +70,7 @@ class DashboardChartService
                          SUM(exports.grand_total) as revenue,
                          SUM(export_details.import_price * export_details.quantity) as cogs,
                          SUM(exports.grand_total) - SUM(export_details.import_price * export_details.quantity) as gross_profit")
-            ->where('exports.status', 'completed')
+            ->whereIn('status', ['approved', 'completed'])
             ->whereBetween('exports.updated_at', [$from, $to])
             ->groupBy($label)
             ->orderBy($label)

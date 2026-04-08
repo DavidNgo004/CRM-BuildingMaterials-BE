@@ -44,7 +44,7 @@ class ImportService
             $grand_total = max(0, $total_price - $discount);
 
             $import = Import::create([
-                'user_id' => auth()->id() ?? 1,
+                'user_id' => Auth::id() ?? 1,
                 'total_price' => $total_price,
                 'discount_amount' => $discount,
                 'grand_total' => $grand_total,
@@ -135,7 +135,7 @@ class ImportService
                             'product_id' => $product->id,
                             'type' => 'import',
                             'quantity' => $detail->quantity,
-                            'created_by' => auth()->id() ?? 1,
+                            'created_by' =>Auth::id() ?? 1,
                         ]);
                     }
                 }

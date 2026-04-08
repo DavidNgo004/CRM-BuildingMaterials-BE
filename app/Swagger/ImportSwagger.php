@@ -36,28 +36,12 @@ class ImportSwagger
      *
      *     @OA\Response(
      *         response=200,
-     *         description="Thành công",
-     *         @OA\JsonContent(
-     *             type="object",
-     *             @OA\Property(
-     *                 property="data",
-     *                 type="array",
-     *                 @OA\Items(
-     *                     @OA\Property(property="id", type="integer", example=1),
-     *                     @OA\Property(property="code", type="string", example="PN-A1B2C3"),
-     *                     @OA\Property(property="user_id", type="integer", example=1),
-     *                     @OA\Property(property="total_price", type="number", example=5000000),
-     *                     @OA\Property(property="discount_amount", type="number", example=100000),
-     *                     @OA\Property(property="grand_total", type="number", example=4900000),
-     *                     @OA\Property(property="status", type="string", example="pending", description="pending/approved/completed/cancelled"),
-     *                     @OA\Property(property="note", type="string", example="Nhập đợt 1")
-     *                 )
-     *             )
-     *         )
+     *         description="Thành công"
      *     )
      * )
      */
     public function index(){}
+
 
     /**
      * @OA\Post(
@@ -70,25 +54,95 @@ class ImportSwagger
      *         required=true,
      *         @OA\JsonContent(
      *             required={"details"},
-     *             @OA\Property(property="note", type="string", example="Nhập đợt 1 tổng hợp"),
-     *             @OA\Property(property="discount_amount", type="number", example=100000),
+     *
+     *             @OA\Property(
+     *                 property="note",
+     *                 type="string",
+     *                 example="Nhập đợt 1 tổng hợp"
+     *             ),
+     *
+     *             @OA\Property(
+     *                 property="discount_amount",
+     *                 type="number",
+     *                 example=100000
+     *             ),
+     *
      *             @OA\Property(
      *                 property="details",
      *                 type="array",
+     *
      *                 @OA\Items(
      *                     type="object",
-     *                     required={"product_id", "quantity", "unit_price"},
-     *                     @OA\Property(property="product_id", type="integer", example=2),
-     *                     @OA\Property(property="quantity", type="integer", example=100),
-     *                     @OA\Property(property="unit_price", type="number", example=50000)
+     *                     required={"product_id","quantity","unit_price"},
+     *
+     *                     @OA\Property(
+     *                         property="product_id",
+     *                         type="integer",
+     *                         example=2
+     *                     ),
+     *
+     *                     @OA\Property(
+     *                         property="quantity",
+     *                         type="integer",
+     *                         example=100
+     *                     ),
+     *
+     *                     @OA\Property(
+     *                         property="unit_price",
+     *                         type="number",
+     *                         example=50000
+     *                     )
      *                 )
      *             )
      *         )
      *     ),
+     *
      *     @OA\Response(response=201, description="Thành công")
      * )
      */
     public function store(){}
+
+
+    /**
+     * @OA\Post(
+     *     path="/api/imports/excel",
+     *     tags={"Import"},
+     *     security={{"bearerAuth":{}}},
+     *     summary="Import phiếu nhập kho bằng file Excel",
+     *     description="Upload file Excel format: product_name | quantity | unit_price",
+     *
+     *     @OA\RequestBody(
+     *         required=true,
+     *
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *
+     *             @OA\Schema(
+     *                 required={"file"},
+     *
+     *                 @OA\Property(
+     *                     property="file",
+     *                     description="File Excel (.xlsx hoặc .xls)",
+     *                     type="string",
+     *                     format="binary"
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Import Excel thành công"
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=422,
+     *         description="File không hợp lệ"
+     *     )
+     * )
+     */
+    public function importExcel(){}
+
 
     /**
      * @OA\Get(
@@ -102,7 +156,11 @@ class ImportSwagger
      *         in="path",
      *         required=true,
      *         description="ID phiếu nhập",
-     *         @OA\Schema(type="integer", example=1)
+     *
+     *         @OA\Schema(
+     *             type="integer",
+     *             example=1
+     *         )
      *     ),
      *
      *     @OA\Response(response=200, description="Thành công"),
@@ -111,36 +169,46 @@ class ImportSwagger
      */
     public function show(){}
 
+
     /**
      * @OA\Put(
      *     path="/api/imports/{id}/status",
      *     tags={"Import"},
      *     security={{"bearerAuth":{}}},
-     *     summary="Cập nhật trạng thái phiếu nhập (pending -> approved -> completed)",
-     *     description="Khi đổi `approved`: Hệ gửi báo giá Supplier. Đổi `completed`: Hàng về, cộng Stock.",
+     *     summary="Cập nhật trạng thái phiếu nhập (pending → approved → completed)",
+     *     description="approved: gửi báo giá supplier. completed: cộng tồn kho",
      *
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
      *         required=true,
      *         description="ID phiếu nhập",
+     *
      *         @OA\Schema(type="integer", example=1)
      *     ),
      *
      *     @OA\RequestBody(
      *         required=true,
+     *
      *         @OA\JsonContent(
      *             required={"status"},
-     *             @OA\Property(property="status", type="string", enum={"pending", "approved", "completed", "cancelled"}, example="approved")
+     *
+     *             @OA\Property(
+     *                 property="status",
+     *                 type="string",
+     *                 enum={"pending","approved","completed","cancelled"},
+     *                 example="approved"
+     *             )
      *         )
      *     ),
      *
      *     @OA\Response(response=200, description="Thành công"),
-     *     @OA\Response(response=400, description="Lỗi logic trạng thái"),
+     *     @OA\Response(response=400, description="Sai logic trạng thái"),
      *     @OA\Response(response=404, description="Không tìm thấy")
      * )
      */
     public function changeStatus(){}
+
 
     /**
      * @OA\Delete(
@@ -154,6 +222,7 @@ class ImportSwagger
      *         in="path",
      *         required=true,
      *         description="ID phiếu nhập",
+     *
      *         @OA\Schema(type="integer", example=1)
      *     ),
      *

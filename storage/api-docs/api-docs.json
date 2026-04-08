@@ -1567,57 +1567,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Thành công",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "properties": {
-                                                    "id": {
-                                                        "type": "integer",
-                                                        "example": 1
-                                                    },
-                                                    "code": {
-                                                        "type": "string",
-                                                        "example": "PN-A1B2C3"
-                                                    },
-                                                    "user_id": {
-                                                        "type": "integer",
-                                                        "example": 1
-                                                    },
-                                                    "total_price": {
-                                                        "type": "number",
-                                                        "example": 5000000
-                                                    },
-                                                    "discount_amount": {
-                                                        "type": "number",
-                                                        "example": 100000
-                                                    },
-                                                    "grand_total": {
-                                                        "type": "number",
-                                                        "example": 4900000
-                                                    },
-                                                    "status": {
-                                                        "description": "pending/approved/completed/cancelled",
-                                                        "type": "string",
-                                                        "example": "pending"
-                                                    },
-                                                    "note": {
-                                                        "type": "string",
-                                                        "example": "Nhập đợt 1"
-                                                    }
-                                                },
-                                                "type": "object"
-                                            }
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
+                        "description": "Thành công"
                     }
                 },
                 "security": [
@@ -1683,6 +1633,49 @@
                 "responses": {
                     "201": {
                         "description": "Thành công"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/imports/excel": {
+            "post": {
+                "tags": [
+                    "Import"
+                ],
+                "summary": "Import phiếu nhập kho bằng file Excel",
+                "description": "Upload file Excel format: product_name | quantity | unit_price",
+                "operationId": "1c356660181eba71fc7bf9ee2ec0900d",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "file"
+                                ],
+                                "properties": {
+                                    "file": {
+                                        "description": "File Excel (.xlsx hoặc .xls)",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Import Excel thành công"
+                    },
+                    "422": {
+                        "description": "File không hợp lệ"
                     }
                 },
                 "security": [
@@ -1763,8 +1756,8 @@
                 "tags": [
                     "Import"
                 ],
-                "summary": "Cập nhật trạng thái phiếu nhập (pending -> approved -> completed)",
-                "description": "Khi đổi `approved`: Hệ gửi báo giá Supplier. Đổi `completed`: Hàng về, cộng Stock.",
+                "summary": "Cập nhật trạng thái phiếu nhập (pending → approved → completed)",
+                "description": "approved: gửi báo giá supplier. completed: cộng tồn kho",
                 "operationId": "c961ea751c890f8e72b7d5e3d0072a28",
                 "parameters": [
                     {
@@ -1808,7 +1801,7 @@
                         "description": "Thành công"
                     },
                     "400": {
-                        "description": "Lỗi logic trạng thái"
+                        "description": "Sai logic trạng thái"
                     },
                     "404": {
                         "description": "Không tìm thấy"

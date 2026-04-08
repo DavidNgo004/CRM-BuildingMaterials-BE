@@ -2,6 +2,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ImportExcelController;
 
 // Authentication routes
 Route::post('/login',[AuthController::class,'login']);
@@ -41,6 +42,9 @@ Route::middleware('auth:api')->group(function(){
     Route::apiResource('imports', ImportController::class)->except(['update']);
     Route::put('imports/{import}/status', [ImportController::class, 'changeStatus']);
 });
+
+Route::middleware(['auth:api', 'role:admin,warehouse'])
+    ->post('/imports/excel', [ImportExcelController::class, 'import']);
 
 // Export routes
 use App\Http\Controllers\ExportController;
