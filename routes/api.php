@@ -40,6 +40,7 @@ Route::middleware('auth:api')->group(function(){
 use App\Http\Controllers\ImportController;
 Route::middleware('auth:api')->group(function(){
     Route::apiResource('imports', ImportController::class)->except(['update']);
+    Route::put('imports/{id}', [ImportController::class, 'update']);
     Route::put('imports/{import}/status', [ImportController::class, 'changeStatus']);
 });
 

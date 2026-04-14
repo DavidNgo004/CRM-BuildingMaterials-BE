@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\ImportService;
 use App\Http\Requests\StoreImportRequest;
+use App\Http\Requests\UpdateImportRequest;
 use App\Http\Requests\ChangeImportStatusRequest;
 use Illuminate\Http\Request;
 use Exception;
@@ -45,6 +46,16 @@ class ImportController extends Controller
         }
 
         return response()->json($import);
+    }
+
+    public function update($id, UpdateImportRequest $request)
+    {
+        try {
+            $import = $this->importService->update($id, $request->validated());
+            return response()->json($import);
+        } catch (Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 400);
+        }
     }
 
     public function changeStatus($id, ChangeImportStatusRequest $request)

@@ -41,6 +41,10 @@ class DashboardAlertService
         $salesLast30 = $this->getSalesQtyByProduct(Carbon::now()->subDays(30), Carbon::now());
         $salesPrior30 = $this->getSalesQtyByProduct(Carbon::now()->subDays(60), Carbon::now()->subDays(30));
 
+        // TỐI ƯU HIỆU NĂNG N+1: Lấy trước toàn bộ dữ liệu lịch sử bán hàng theo ngày của tất cả sản phẩm
+        // Sẽ lưu dưới dạng ['product_id' => [10, 5, 20, 0, 15...]] (mảng các quantity tuần tự)
+        $bulkDailySales = $this->getBulkDailySales();
+
         // =============================================
         // A. Quét trạng thái tồn kho từng sản phẩm
         // =============================================
@@ -56,7 +60,7 @@ class DashboardAlertService
                     $product->name
                 );
                 // Gợi ý nhập đủ 2× reorder_level
-                $suggestions[] = $this->buildSuggestion($product, $product->reorder_level * 2);
+                $suggestions[] = $this->buildSuggestion($product, max(1, $product->reorder_level * 2));
 
             } elseif ($product->stock <= $product->reorder_level) {
                 // Trường hợp 2: SẮP HẾT HÀNG (Dựa theo ngưỡng cứng reorder_level)
@@ -67,11 +71,11 @@ class DashboardAlertService
                     $product->name
                 );
 
-                // AI 1 dự báo động dựa trên lịch sử 30 ngày
+                // AI 1 dự báo động dựa trên lịch sử
                 $lastQty = $salesLast30[$product->id] ?? 0;
-                // $avgDaily = $lastQty / 30;
-                // $forecast14 = ceil($avgDaily * 14);
-                $forecast14 = $this->forecastNextDaysLinearRegression($product->id, 14);
+                $historyArray = $bulkDailySales->get($product->id, []);
+                
+                $forecast14 = $this->calculateLinearRegressionForecast($historyArray, 14);
 
                 if ($forecast14 == 0) {
                     // fallback nếu dữ liệu chưa đủ train
@@ -94,7 +98,9 @@ class DashboardAlertService
                 } else {
                     // Nếu đủ bán thì gợi ý nhập thêm mức cơ bản 2x_reorder
                     $needed = ($product->reorder_level * 2) - $product->stock;
-                    $suggestions[] = $this->buildSuggestion($product, max(1, $needed));
+                    if ($needed > 0) {
+                        $suggestions[] = $this->buildSuggestion($product, $needed);
+                    }
                 }
             }
         }
@@ -104,14 +110,14 @@ class DashboardAlertService
         //    Điều kiện: Doanh số 30 ngày gần nhất giảm ≥40% so với 30 ngày trước
         // =============================================
         foreach ($salesPrior30 as $productId => $priorQty) {
-            if ($priorQty == 0)
-                continue;
+            if ($priorQty == 0) continue;
 
             $lastQty = $salesLast30[$productId] ?? 0;
             $dropPct = round((($priorQty - $lastQty) / $priorQty) * 100, 1);
 
             if ($dropPct >= 40) {
-                $product = Product::find($productId);
+                // Find in our already fetched collection instead of DB query
+                $product = $products->firstWhere('id', $productId);
                 if ($product) {
                     $alerts[] = $this->buildAlert(
                         'slow_moving',
@@ -128,22 +134,25 @@ class DashboardAlertService
         // C. Phát hiện TỒNG KHO CHẾT (Overstock + không bán)
         //    Điều kiện: stock > 3× reorder_level VÀ không có đơn nào trong 30 ngày gần nhất
         // =============================================
-        $overstockProducts = Product::whereRaw('stock > reorder_level * 3')->get();
+        $overstockProducts = $products->filter(function($p) {
+            return $p->stock > ($p->reorder_level * 3);
+        });
+
         foreach ($overstockProducts as $product) {
             $recentSales = $salesLast30[$product->id] ?? 0;
             if ($recentSales == 0) {
                 $alerts[] = $this->buildAlert(
                     'overstock',
                     'info',
-                    " {$product->name} tồn kho cao ({$product->stock} {$product->unit}) – không có đơn bán trong 30 ngày qua",
+                    "🧊 {$product->name} tồn kho cao ({$product->stock} {$product->unit}) – không có đơn bán trong 30 ngày qua",
                     $product->name
                 );
             }
         }
 
         return [
-            'alerts' => $alerts,
-            'suggestions' => $suggestions,
+            'alerts' => array_values($alerts),
+            'suggestions' => array_values($suggestions),
         ];
     }
 
@@ -158,25 +167,40 @@ class DashboardAlertService
      */
     private function getSalesQtyByProduct(Carbon $from, Carbon $to)
     {
-        return ExportDetail::whereHas(
-            'export',
-            fn($q) =>
-            $q->where('status', 'completed')->whereBetween('updated_at', [$from, $to])
-        )
-            ->select('product_id', DB::raw('SUM(quantity) as qty'))
-            ->groupBy('product_id')
+        return DB::table('export_details')
+            ->join('exports', 'exports.id', '=', 'export_details.export_id')
+            ->where('exports.status', 'completed')
+            ->whereBetween('exports.updated_at', [$from, $to])
+            ->select('export_details.product_id', DB::raw('SUM(export_details.quantity) as qty'))
+            ->groupBy('export_details.product_id')
             ->pluck('qty', 'product_id');
     }
 
     /**
-     * Tạo object cảnh báo chuẩn hóa.
-     *
-     * @param string $type     Loại cảnh báo (out_of_stock, low_stock, slow_moving, overstock)
-     * @param string $level    Mức độ (critical, warning, info)
-     * @param string $message  Nội dung hiển thị
-     * @param string $product  Tên sản phẩm
-     * @param array  $extra    Dữ liệu bổ sung tùy loại cảnh báo
+     * Kéo toàn bộ lịch sử bán hàng theo ngày trong 90 ngày của tất cả các sản phẩm.
+     * Đây là cách tối ưu N+1 query để hệ thống hoạt động với O(1) query.
      */
+    private function getBulkDailySales()
+    {
+        return DB::table('export_details')
+            ->join('exports', 'exports.id', '=', 'export_details.export_id')
+            ->where('exports.status', 'completed')
+            ->where('exports.updated_at', '>=', Carbon::now()->subDays(90))
+            ->select(
+                'export_details.product_id',
+                DB::raw('DATE(exports.updated_at) as date'),
+                DB::raw('SUM(export_details.quantity) as qty')
+            )
+            ->groupBy('export_details.product_id', 'date')
+            ->orderBy('date')
+            ->get()
+            ->groupBy('product_id')
+            ->map(function ($items) {
+                // Trả ra 1 tập mảng số thực [quantity1, quantity2, ...] đã được xếp theo ngày
+                return $items->pluck('qty')->toArray();
+            });
+    }
+
     private function buildAlert(string $type, string $level, string $message, string $product, array $extra = []): array
     {
         return array_merge([
@@ -187,12 +211,6 @@ class DashboardAlertService
         ], $extra);
     }
 
-    /**
-     * Tạo object gợi ý nhập hàng từ AI.
-     *
-     * @param Product $product     Sản phẩm cần nhập
-     * @param int     $suggestedQty Số lượng gợi ý cần nhập thêm
-     */
     private function buildSuggestion(Product $product, int $suggestedQty): array
     {
         return [
@@ -205,24 +223,13 @@ class DashboardAlertService
             'message' => "💡 Gợi ý nhập thêm " . max(1, $suggestedQty) . " {$product->unit} {$product->name}",
         ];
     }
-    // Mô hình huấn luyện AI
-    private function forecastNextDaysLinearRegression(int $productId, int $days = 14): int
+    
+    /**
+     * Mô hình huấn luyện AI - Linear Regression
+     * Nhận đầu vào là mảng các số lượng bán ra theo ngày.
+     */
+    private function calculateLinearRegressionForecast(array $history, int $days = 14): int
     {
-        $history = ExportDetail::where('product_id', $productId)
-            ->whereHas(
-                'export',
-                fn($q) =>
-                $q->where('status', 'completed')
-            )
-            ->orderBy('updated_at')
-            ->get()
-            ->groupBy(function ($item) {
-                return Carbon::parse($item->updated_at)->format('Y-m-d');
-            })
-            ->map(fn($items) => $items->sum('quantity'))
-            ->values()
-            ->toArray();
-
         $n = count($history);
 
         if ($n < 5) {
@@ -242,9 +249,12 @@ class DashboardAlertService
             $sumX2 += $x[$i] * $x[$i];
         }
 
-        $a = ($n * $sumXY - $sumX * $sumY) /
-            ($n * $sumX2 - $sumX * $sumX);
+        $denominator = ($n * $sumX2 - $sumX * $sumX);
+        if ($denominator == 0) {
+            return 0; // Tránh lỗi chia cho 0 nếu tất cả giá trị đều giống y hệt nhau
+        }
 
+        $a = ($n * $sumXY - $sumX * $sumY) / $denominator;
         $b = ($sumY - $a * $sumX) / $n;
 
         $forecast = 0;
@@ -253,6 +263,6 @@ class DashboardAlertService
             $forecast += ($a * ($n + $i) + $b);
         }
 
-        return max(0, ceil($forecast));
+        return max(0, (int) ceil($forecast));
     }
 }

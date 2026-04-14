@@ -13,6 +13,7 @@ class StoreProductRequest extends FormRequest{
             'unit' => 'required|string|max:50',
             'import_price' => 'required|numeric|min:0',
             'sell_price' => 'required|numeric|min:0',
+            'reorder_level' => 'nullable|numeric|min:0',
             'status' => 'boolean',
         ];
     }

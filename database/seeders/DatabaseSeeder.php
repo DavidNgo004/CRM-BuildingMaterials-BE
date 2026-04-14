@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
+use DeepCopy\f002\A;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -12,9 +12,11 @@ class DatabaseSeeder extends Seeder
 
     /**
      * Seed the application's database.
+     * Chạy các seeder để tạo dữ liệu mẫu
      */
     public function run(): void
     {
-        $this->call(AdminSeeder::class);
+        // Chạy seeder toàn diện - tạo admin + dữ liệu mẫu đầy đủ
+        $this->call(ComprehensiveDataSeeder::class);
     }
 }

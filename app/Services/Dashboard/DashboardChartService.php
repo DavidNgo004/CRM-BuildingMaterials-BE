@@ -45,14 +45,53 @@ class DashboardChartService
     {
         [$group, $label] = $this->resolveGrouping($from, $to);
 
-        return DB::table('exports')
+        $revenueData = DB::table('exports')
             ->selectRaw("DATE_FORMAT(updated_at, '{$group}') as {$label}, SUM(grand_total) as revenue")
             ->whereIn('status', ['approved', 'completed'])
             ->whereBetween('updated_at', [$from, $to])
             ->groupBy($label)
-            ->orderBy($label)
-            ->get()
+            ->pluck('revenue', $label)
             ->toArray();
+
+        $cogsData = DB::table('export_details')
+            ->join('exports', 'exports.id', '=', 'export_details.export_id')
+            ->selectRaw("DATE_FORMAT(exports.updated_at, '{$group}') as {$label}, SUM(export_details.import_price * export_details.quantity) as cogs")
+            ->whereIn('exports.status', ['approved', 'completed'])
+            ->whereBetween('exports.updated_at', [$from, $to])
+            ->groupBy($label)
+            ->pluck('cogs', $label)
+            ->toArray();
+
+        $expenseData = DB::table('expenses')
+            ->selectRaw("DATE_FORMAT(expense_date, '{$group}') as {$label}, SUM(amount) as expense")
+            ->whereBetween('expense_date', [$from, $to])
+            ->whereNull('deleted_at')
+            ->groupBy($label)
+            ->pluck('expense', $label)
+            ->toArray();
+
+        $allDates = array_unique(array_merge(
+            array_keys($revenueData),
+            array_keys($expenseData)
+        ));
+        sort($allDates);
+
+        $result = [];
+        foreach ($allDates as $date) {
+            $rev = $revenueData[$date] ?? 0;
+            $cogs = $cogsData[$date] ?? 0;
+            $exp = $expenseData[$date] ?? 0;
+            $net_profit = $rev - $cogs - $exp;
+
+            $result[] = [
+                $label       => $date,
+                'revenue'    => (float) $rev,
+                'expense'    => (float) $exp,
+                'net_profit' => (float) $net_profit,
+            ];
+        }
+
+        return $result;
     }
 
     /**
@@ -64,18 +103,44 @@ class DashboardChartService
     {
         [$group, $label] = $this->resolveGrouping($from, $to);
 
-        return DB::table('exports')
-            ->join('export_details', 'exports.id', '=', 'export_details.export_id')
-            ->selectRaw("DATE_FORMAT(exports.updated_at, '{$group}') as {$label},
-                         SUM(exports.grand_total) as revenue,
-                         SUM(export_details.import_price * export_details.quantity) as cogs,
-                         SUM(exports.grand_total) - SUM(export_details.import_price * export_details.quantity) as gross_profit")
+        $revenueData = DB::table('exports')
+            ->selectRaw("DATE_FORMAT(updated_at, '{$group}') as {$label}, SUM(grand_total) as revenue")
             ->whereIn('status', ['approved', 'completed'])
+            ->whereBetween('updated_at', [$from, $to])
+            ->groupBy($label)
+            ->pluck('revenue', $label)
+            ->toArray();
+
+        $cogsData = DB::table('export_details')
+            ->join('exports', 'exports.id', '=', 'export_details.export_id')
+            ->selectRaw("DATE_FORMAT(exports.updated_at, '{$group}') as {$label}, SUM(export_details.import_price * export_details.quantity) as cogs")
+            ->whereIn('exports.status', ['approved', 'completed'])
             ->whereBetween('exports.updated_at', [$from, $to])
             ->groupBy($label)
-            ->orderBy($label)
-            ->get()
+            ->pluck('cogs', $label)
             ->toArray();
+
+        $allDates = array_unique(array_merge(
+            array_keys($revenueData),
+            array_keys($cogsData)
+        ));
+        sort($allDates);
+
+        $result = [];
+        foreach ($allDates as $date) {
+            $rev = $revenueData[$date] ?? 0;
+            $cogs = $cogsData[$date] ?? 0;
+            $gross_profit = $rev - $cogs;
+
+            $result[] = [
+                $label         => $date,
+                'revenue'      => (float) $rev,
+                'cogs'         => (float) $cogs,
+                'gross_profit' => (float) $gross_profit,
+            ];
+        }
+
+        return $result;
     }
 
     /**

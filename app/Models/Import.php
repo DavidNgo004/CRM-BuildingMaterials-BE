@@ -12,6 +12,7 @@ class Import extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'code',
         'user_id',
         'total_price',
         'discount_amount',

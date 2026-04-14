@@ -66,6 +66,47 @@ class ImportService
         });
     }
 
+    public function update($id, array $data)
+    {
+        return DB::transaction(function () use ($id, $data) {
+            $import = Import::with('details')->findOrFail($id);
+
+            if ($import->status !== 'pending') {
+                throw new Exception('Chỉ có thể chỉnh sửa phiếu nhập đang ở trạng thái chờ duyệt.');
+            }
+
+            // Xóa toàn bộ chi tiết cũ, tính lại
+            $import->details()->delete();
+
+            $total_price = 0;
+            foreach ($data['details'] as $detail) {
+                $total_price += $detail['unit_price'] * $detail['quantity'];
+            }
+
+            $discount    = $data['discount_amount'] ?? $import->discount_amount;
+            $grand_total = max(0, $total_price - $discount);
+
+            $import->update([
+                'total_price'     => $total_price,
+                'discount_amount' => $discount,
+                'grand_total'     => $grand_total,
+                'note'            => $data['note'] ?? $import->note,
+            ]);
+
+            foreach ($data['details'] as $detail) {
+                ImportDetail::create([
+                    'import_id'   => $import->id,
+                    'product_id'  => $detail['product_id'],
+                    'quantity'    => $detail['quantity'],
+                    'unit_price'  => $detail['unit_price'],
+                    'total_price' => $detail['unit_price'] * $detail['quantity'],
+                ]);
+            }
+
+            return $import->load('details.product.supplier');
+        });
+    }
+
     public function changeStatus($id, $status)
     {
         return DB::transaction(function () use ($id, $status) {
