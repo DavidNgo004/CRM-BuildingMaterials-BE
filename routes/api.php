@@ -36,6 +36,12 @@ Route::middleware('auth:api')->group(function(){
     Route::apiResource('customers', CustomerController::class);
 });
 
+// Import Excel routes (phải đặt TRƯỚC apiResource để tránh /imports/{id} bắt nhầm)
+Route::middleware(['auth:api', 'role:admin,warehouse'])->group(function () {
+    Route::post('/imports/excel', [ImportExcelController::class, 'import']);
+    Route::get('/imports/excel/template', [ImportExcelController::class, 'downloadTemplate']);
+});
+
 // Import routes
 use App\Http\Controllers\ImportController;
 Route::middleware('auth:api')->group(function(){
@@ -44,8 +50,6 @@ Route::middleware('auth:api')->group(function(){
     Route::put('imports/{import}/status', [ImportController::class, 'changeStatus']);
 });
 
-Route::middleware(['auth:api', 'role:admin,warehouse'])
-    ->post('/imports/excel', [ImportExcelController::class, 'import']);
 
 // Export routes
 use App\Http\Controllers\ExportController;

@@ -2,11 +2,13 @@
 
 namespace App\Services;
 
+use App\Mail\StaffAccountCreatedMail;
 use App\Models\User;
 use App\Repositories\UserRepository;
-use Illuminate\Support\Facades\Hash;
-use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthService
 {
@@ -19,7 +21,7 @@ class AuthService
 
     public function login($request)
     {
-        $credentials = $request->only('email','password');
+        $credentials = $request->only('email', 'password');
 
         $token = JWTAuth::attempt($credentials);
 
@@ -48,7 +50,7 @@ class AuthService
 
     public function createWarehouseStaff($request)
     {
-        if(Auth::user()->role !== 'admin'){ // Only admin can create warehouse staff
+        if (Auth::user()->role !== 'admin') { // Only admin can create warehouse staff
 
             return [
                 'status' => false,
@@ -56,12 +58,23 @@ class AuthService
             ];
         }
 
+        $plainPassword = $request->password;
+
         $user = $this->userRepository->create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'password' => Hash::make($plainPassword),
             'role' => 'warehouse_staff'
         ]);
+
+        // Gửi email thông tin tài khoản cho nhân viên mới
+        try {
+            Mail::to($user->email)
+                ->send(new StaffAccountCreatedMail($user->name, $user->email, $plainPassword));
+        } catch (\Exception $e) {
+            // Không dừng luồng chính nếu gửi mail thất bại
+            \Log::error('StaffAccountCreatedMail failed: ' . $e->getMessage());
+        }
 
         return [
             'status' => true,
@@ -71,7 +84,7 @@ class AuthService
 
     public function updateStaff($request, $id)
     {
-        if(Auth::user()->role !== 'admin'){
+        if (Auth::user()->role !== 'admin') {
             return [
                 'status' => false,
                 'message' => 'Unauthorized'
@@ -80,8 +93,8 @@ class AuthService
 
         $user = $this->userRepository->find($id);
 
-        if(!$user || $user->role !== 'warehouse_staff'){
-             return [
+        if (!$user || $user->role !== 'warehouse_staff') {
+            return [
                 'status' => false,
                 'message' => 'Resource not found or invalid type'
             ];
@@ -97,7 +110,7 @@ class AuthService
 
     public function deleteStaff($id)
     {
-        if(Auth::user()->role !== 'admin'){
+        if (Auth::user()->role !== 'admin') {
             return [
                 'status' => false,
                 'message' => 'Unauthorized'
@@ -106,8 +119,8 @@ class AuthService
 
         $user = $this->userRepository->find($id);
 
-        if(!$user || $user->role !== 'warehouse_staff'){
-             return [
+        if (!$user || $user->role !== 'warehouse_staff') {
+            return [
                 'status' => false,
                 'message' => 'Resource not found or invalid type'
             ];
@@ -124,7 +137,7 @@ class AuthService
     public function listStaff()
     {
 
-        if(Auth::user()->role !== 'admin'){
+        if (Auth::user()->role !== 'admin') {
 
             return [
                 'status' => false,
@@ -146,11 +159,11 @@ class AuthService
 
         $user = Auth::user();
 
-        if(!Hash::check($request->current_password,$user->password)){
+        if (!Hash::check($request->current_password, $user->password)) {
 
             return [
-                'status'=>false,
-                'message'=>'Current password incorrect'
+                'status' => false,
+                'message' => 'Current password incorrect'
             ];
 
         }
@@ -160,8 +173,8 @@ class AuthService
         ]);
 
         return [
-            'status'=>true,
-            'message'=>'Password updated'
+            'status' => true,
+            'message' => 'Password updated'
         ];
 
     }
