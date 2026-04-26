@@ -28,20 +28,22 @@ class DashboardChartService
      */
     public function getCharts(Carbon $from, Carbon $to): array
     {
+        $baseData = $this->getRevenueCogsExpenseData($from, $to);
+        $topProducts = $this->topProducts($from, $to);
+        
         return [
-            'revenue_chart'       => $this->revenueChart($from, $to),
-            'profit_chart'        => $this->profitChart($from, $to),
-            'top_products'        => $this->topProducts($from, $to),
-            'revenue_by_product'  => $this->revenueByProduct($from, $to),
+            'revenue_chart'       => $this->revenueChart($baseData),
+            'profit_chart'        => $this->profitChart($baseData),
+            'top_products'        => $topProducts,
+            'revenue_by_product'  => $this->revenueByProduct($topProducts),
             'inventory_breakdown' => $this->inventoryBreakdown(),
         ];
     }
-
+    
     /**
-     * Biểu đồ doanh thu theo ngày (≤31 ngày) hoặc theo tháng (>31 ngày). 
-     * lấy trạng thái "approved" và "completed" để phản ánh doanh thu thực tế đã ghi nhận và trừ trạng thái "cancelled".
+     * Lấy dữ liệu doanh thu, giá vốn, chi phí dùng chung cho nhiều biểu đồ.
      */
-    private function revenueChart(Carbon $from, Carbon $to): array
+    private function getRevenueCogsExpenseData(Carbon $from, Carbon $to): array
     {
         [$group, $label] = $this->resolveGrouping($from, $to);
 
@@ -72,25 +74,41 @@ class DashboardChartService
 
         $allDates = array_unique(array_merge(
             array_keys($revenueData),
-            array_keys($expenseData)
+            array_keys($expenseData),
+            array_keys($cogsData)
         ));
         sort($allDates);
 
         $result = [];
         foreach ($allDates as $date) {
-            $rev = $revenueData[$date] ?? 0;
-            $cogs = $cogsData[$date] ?? 0;
-            $exp = $expenseData[$date] ?? 0;
-            $net_profit = $rev - $cogs - $exp;
-
             $result[] = [
-                $label       => $date,
-                'revenue'    => (float) $rev,
-                'expense'    => (float) $exp,
-                'net_profit' => (float) $net_profit,
+                $label    => $date,
+                'label_key' => $label,
+                'revenue' => (float) ($revenueData[$date] ?? 0),
+                'cogs'    => (float) ($cogsData[$date] ?? 0),
+                'expense' => (float) ($expenseData[$date] ?? 0),
             ];
         }
 
+        return $result;
+    }
+
+    /**
+     * Biểu đồ doanh thu theo ngày (≤31 ngày) hoặc theo tháng (>31 ngày). 
+     * lấy trạng thái "approved" và "completed" để phản ánh doanh thu thực tế đã ghi nhận và trừ trạng thái "cancelled".
+     */
+    private function revenueChart(array $baseData): array
+    {
+        $result = [];
+        foreach ($baseData as $item) {
+            $labelKey = $item['label_key'];
+            $result[] = [
+                $labelKey    => $item[$labelKey],
+                'revenue'    => $item['revenue'],
+                'expense'    => $item['expense'],
+                'net_profit' => $item['revenue'] - $item['cogs'] - $item['expense'],
+            ];
+        }
         return $result;
     }
 
@@ -99,47 +117,18 @@ class DashboardChartService
      * (Chi phí vận hành phân bổ đều theo kỳ để giữ đơn giản)
      * lấy trạng thái "approved" và "completed" để phản ánh doanh thu thực tế đã ghi nhận và trừ trạng thái "cancelled".
      */
-    private function profitChart(Carbon $from, Carbon $to): array
+    private function profitChart(array $baseData): array
     {
-        [$group, $label] = $this->resolveGrouping($from, $to);
-
-        $revenueData = DB::table('exports')
-            ->selectRaw("DATE_FORMAT(updated_at, '{$group}') as {$label}, SUM(grand_total) as revenue")
-            ->whereIn('status', ['approved', 'completed'])
-            ->whereBetween('updated_at', [$from, $to])
-            ->groupBy($label)
-            ->pluck('revenue', $label)
-            ->toArray();
-
-        $cogsData = DB::table('export_details')
-            ->join('exports', 'exports.id', '=', 'export_details.export_id')
-            ->selectRaw("DATE_FORMAT(exports.updated_at, '{$group}') as {$label}, SUM(export_details.import_price * export_details.quantity) as cogs")
-            ->whereIn('exports.status', ['approved', 'completed'])
-            ->whereBetween('exports.updated_at', [$from, $to])
-            ->groupBy($label)
-            ->pluck('cogs', $label)
-            ->toArray();
-
-        $allDates = array_unique(array_merge(
-            array_keys($revenueData),
-            array_keys($cogsData)
-        ));
-        sort($allDates);
-
         $result = [];
-        foreach ($allDates as $date) {
-            $rev = $revenueData[$date] ?? 0;
-            $cogs = $cogsData[$date] ?? 0;
-            $gross_profit = $rev - $cogs;
-
+        foreach ($baseData as $item) {
+            $labelKey = $item['label_key'];
             $result[] = [
-                $label         => $date,
-                'revenue'      => (float) $rev,
-                'cogs'         => (float) $cogs,
-                'gross_profit' => (float) $gross_profit,
+                $labelKey      => $item[$labelKey],
+                'revenue'      => $item['revenue'],
+                'cogs'         => $item['cogs'],
+                'gross_profit' => $item['revenue'] - $item['cogs'],
             ];
         }
-
         return $result;
     }
 
@@ -175,9 +164,8 @@ class DashboardChartService
      * Tỷ trọng doanh thu từng sản phẩm (%) trong Top 5.
      * Dùng cho Pie Chart.
      */
-    private function revenueByProduct(Carbon $from, Carbon $to): array
+    private function revenueByProduct(array $topProducts): array
     {
-        $topProducts  = $this->topProducts($from, $to);
         $grandTotal   = array_sum(array_column($topProducts, 'total_revenue')) ?: 1;
 
         return array_map(fn ($p) => [

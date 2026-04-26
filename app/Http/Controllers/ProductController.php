@@ -6,6 +6,10 @@ use App\Services\ProductService;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use Illuminate\Http\Request;
+use App\Exports\ProductExport;
+use App\Exports\ProductTemplateExport;
+use App\Imports\ProductImport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ProductController extends Controller
 {
@@ -57,6 +61,30 @@ class ProductController extends Controller
         }
 
         return response()->json(['message' => 'Sản phẩm đã được xóa']);
+    }
+
+    public function exportExcel()
+    {
+        return Excel::download(new ProductExport, 'products.xlsx');
+    }
+
+    public function downloadTemplateExcel()
+    {
+        return Excel::download(new ProductTemplateExport, 'mau_nhap_san_pham.xlsx');
+    }
+
+    public function importExcel(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv|max:10240',
+        ]);
+
+        try {
+            Excel::import(new ProductImport, $request->file('file'));
+            return response()->json(['message' => 'Nhập Excel thành công!']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Lỗi khi nhập Excel: ' . $e->getMessage()], 400);
+        }
     }
 
 }

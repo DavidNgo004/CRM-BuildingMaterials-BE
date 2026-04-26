@@ -18,6 +18,7 @@ class Product extends Model
         'stock',
         'reorder_level',
         'status',
+        'updated_by',
     ];
 
     public function supplier()
@@ -33,5 +34,10 @@ class Product extends Model
     public function exportDetails()
     {
         return $this->hasMany(ExportDetail::class);
+    }
+
+    public function updatedBy()
+    {
+        return $this->belongsTo(User::class, 'updated_by', 'id');
     }
 }

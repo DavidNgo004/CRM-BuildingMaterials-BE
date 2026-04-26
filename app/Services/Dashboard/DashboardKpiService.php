@@ -33,16 +33,47 @@ class DashboardKpiService
     {
         [$todayFrom, $todayTo] = [Carbon::today()->startOfDay(), Carbon::today()->endOfDay()];
 
-        // --- Doanh thu: tổng grand_total các phiếu XUẤT đã hoàn thành trong kỳ ---
-        $revenue = Export::whereIn('status', ['approved', 'completed'])
-            ->whereBetween('updated_at', [$from, $to])
-            ->sum('grand_total');
+        // --- Gộp query XUẤT (Doanh thu, số lượng đơn) ---
+        $exportStats = Export::whereIn('status', ['approved', 'completed'])
+            ->where(function ($q) use ($from, $to, $todayFrom, $todayTo) {
+                $q->whereBetween('updated_at', [$from, $to])
+                    ->orWhereBetween('updated_at', [$todayFrom, $todayTo]);
+            })
+            ->selectRaw("
+                SUM(IF(updated_at BETWEEN '{$from}' AND '{$to}', grand_total, 0)) as revenue,
+                SUM(IF(updated_at BETWEEN '{$from}' AND '{$to}', 1, 0)) as count,
+                SUM(IF(updated_at BETWEEN '{$todayFrom}' AND '{$todayTo}', grand_total, 0)) as revenue_today,
+                SUM(IF(updated_at BETWEEN '{$todayFrom}' AND '{$todayTo}', 1, 0)) as count_today
+            ")
+            ->first();
+
+        $revenue = $exportStats->revenue ?? 0;
+        $exportCount = $exportStats->count ?? 0;
+        $revenueToday = $exportStats->revenue_today ?? 0;
+        $exportCountToday = $exportStats->count_today ?? 0;
+
+        // --- Gộp query NHẬP (số lượng đơn) ---
+        $importStats = Import::where('status', 'completed')
+            ->where(function ($q) use ($from, $to, $todayFrom, $todayTo) {
+                $q->whereBetween('updated_at', [$from, $to])
+                    ->orWhereBetween('updated_at', [$todayFrom, $todayTo]);
+            })
+            ->selectRaw("
+                SUM(IF(updated_at BETWEEN '{$from}' AND '{$to}', 1, 0)) as count,
+                SUM(IF(updated_at BETWEEN '{$todayFrom}' AND '{$todayTo}', 1, 0)) as count_today
+            ")
+            ->first();
+
+        $importCount = $importStats->count ?? 0;
+        $importCountToday = $importStats->count_today ?? 0;
 
         // --- Giá vốn: import_price * quantity của các sản phẩm trong phiếu xuất hoàn thành ---
-        $cogs = ExportDetail::whereHas('export', fn ($q) =>
+        $cogs = ExportDetail::whereHas(
+            'export',
+            fn($q) =>
             $q->whereIn('status', ['approved', 'completed'])->whereBetween('updated_at', [$from, $to])
         )->selectRaw('SUM(import_price * quantity) as total_cogs')
-         ->value('total_cogs') ?? 0;
+            ->value('total_cogs') ?? 0;
 
         // --- Chi phí vận hành: tổng các khoản chi trong kỳ ---
         $expenses = Expense::whereBetween('expense_date', [$from, $to])->sum('amount');
@@ -50,31 +81,20 @@ class DashboardKpiService
         // --- Lợi nhuận ròng ---
         $profit = $revenue - $cogs - $expenses;
 
-        // --- Doanh thu hôm nay ---
-        $revenueToday = Export::whereIn('status', ['approved', 'completed'])
-            ->whereBetween('updated_at', [$todayFrom, $todayTo])
-            ->sum('grand_total');
-
-        // --- Số đơn xuất / nhập hoàn thành trong kỳ và hôm nay ---
-        $exportCount      = Export::whereIn('status', ['approved', 'completed'])->whereBetween('updated_at', [$from, $to])->count();
-        $importCount      = Import::whereIn('status', ['completed'])->whereBetween('updated_at', [$from, $to])->count();
-        $exportCountToday = Export::whereIn('status', ['approved', 'completed'])->whereBetween('updated_at', [$todayFrom, $todayTo])->count();
-        $importCountToday = Import::whereIn('status', ['completed'])->whereBetween('updated_at', [$todayFrom, $todayTo])->count();
-
         // --- Số sản phẩm sắp hết hàng (stock <= reorder_level) ---
         $lowStockCount = Product::whereColumn('stock', '<=', 'reorder_level')->count();
 
         return [
-            'revenue'            => (int) $revenue,
-            'revenue_today'      => (int) $revenueToday,
-            'cogs'               => (int) $cogs,
-            'expenses'           => (int) $expenses,
-            'profit'             => (int) $profit,
-            'export_count'       => $exportCount,
+            'revenue' => (int) $revenue,
+            'revenue_today' => (int) $revenueToday,
+            'cogs' => (int) $cogs,
+            'expenses' => (int) $expenses,
+            'profit' => (int) $profit,
+            'export_count' => $exportCount,
             'export_count_today' => $exportCountToday,
-            'import_count'       => $importCount,
+            'import_count' => $importCount,
             'import_count_today' => $importCountToday,
-            'low_stock_count'    => $lowStockCount,
+            'low_stock_count' => $lowStockCount,
         ];
     }
 }

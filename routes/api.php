@@ -17,6 +17,9 @@ Route::middleware('auth:api')->group(function(){
 });
 // Product routes
 Route::middleware('auth:api')->group(function(){
+    Route::get('/products/export/excel', [ProductController::class, 'exportExcel']);
+    Route::get('/products/import/template', [ProductController::class, 'downloadTemplateExcel']);
+    Route::post('/products/import/excel', [ProductController::class, 'importExcel']);
     Route::get('/products',[ProductController::class,'index']);
     Route::get('/products/{id}',[ProductController::class,'show']);
     Route::post('/products',[ProductController::class,'store']);
@@ -79,5 +82,23 @@ Route::middleware('auth:api')->prefix('dashboard')->group(function(){
     Route::get('/recent-activities', [DashboardController::class, 'recentActivities']);
     Route::get('/alerts',            [DashboardController::class, 'alerts']);
     Route::get('/mini-reports',      [DashboardController::class, 'miniReports']);
+    Route::get('/summary',           [DashboardController::class, 'summary']);
+});
+
+Route::prefix('test-dashboard')->group(function(){
+    Route::get('/kpi-cards',         [DashboardController::class, 'kpiCards']);
+    Route::get('/charts',            [DashboardController::class, 'charts']);
+    Route::get('/recent-activities', [DashboardController::class, 'recentActivities']);
+    Route::get('/alerts',            [DashboardController::class, 'alerts']);
+    Route::get('/mini-reports',      [DashboardController::class, 'miniReports']);
+});
+
+// Reports routes
+use App\Http\Controllers\ReportController;
+Route::middleware('auth:api')->group(function(){
+    Route::get('/reports', [ReportController::class, 'index']);
+    Route::post('/reports', [ReportController::class, 'store']);
+    Route::put('/reports/{id}/seen', [ReportController::class, 'markSeen'])->middleware('role:admin');
+    Route::put('/reports/{id}/reply', [ReportController::class, 'reply'])->middleware('role:admin');
 });
 ?>

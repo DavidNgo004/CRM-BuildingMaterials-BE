@@ -32,6 +32,9 @@ class ProductService
 
     public function create($request)
     {
+        if (Auth::user()->role != 'admin') {
+            throw new \Exception('Unauthorized: Only admin can create products.');
+        }
         return $this->productRepository->create($request->validated());
     }
 
@@ -43,7 +46,10 @@ class ProductService
             return null;
         }
 
-        return $this->productRepository->update($product, $request->validated());
+        $data = $request->validated();
+        $data['updated_by'] = Auth::id();
+
+        return $this->productRepository->update($product, $data);
     }
 
     public function delete($id)

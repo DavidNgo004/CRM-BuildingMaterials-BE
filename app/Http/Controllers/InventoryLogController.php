@@ -18,8 +18,10 @@ class InventoryLogController extends Controller
         $perPage    = (int) $request->get('per_page', 20);
         $productId  = $request->get('product_id');
         $type       = $request->get('type');   // 'import' | 'export'
+        $fromDate   = $request->get('from_date');
+        $toDate     = $request->get('to_date');
 
-        $logs = $this->inventoryLogService->paginate($perPage, $productId, $type);
+        $logs = $this->inventoryLogService->paginate($perPage, $productId, $type, $fromDate, $toDate);
         return response()->json($logs);
     }
 }

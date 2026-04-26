@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\DashboardService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * DashboardController
@@ -24,11 +25,13 @@ class DashboardController extends Controller
      */
     public function kpiCards(Request $request)
     {
-        $data = $this->dashboardService->getKpiCards(
-            $request->input('period', 'this_month'),
-            $request->input('start_date'),
-            $request->input('end_date')
-        );
+        $period = $request->input('period', 'this_month');
+        $start  = $request->input('start_date');
+        $end    = $request->input('end_date');
+        
+        $key = "dashboard:kpi_cards:{$period}:{$start}:{$end}";
+        
+        $data = Cache::remember($key, 300, fn() => $this->dashboardService->getKpiCards($period, $start, $end));
         return response()->json($data);
     }
 
@@ -37,11 +40,13 @@ class DashboardController extends Controller
      */
     public function charts(Request $request)
     {
-        $data = $this->dashboardService->getCharts(
-            $request->input('period', 'this_month'),
-            $request->input('start_date'),
-            $request->input('end_date')
-        );
+        $period = $request->input('period', 'this_month');
+        $start  = $request->input('start_date');
+        $end    = $request->input('end_date');
+        
+        $key = "dashboard:charts:{$period}:{$start}:{$end}";
+        
+        $data = Cache::remember($key, 300, fn() => $this->dashboardService->getCharts($period, $start, $end));
         return response()->json($data);
     }
 
@@ -51,7 +56,9 @@ class DashboardController extends Controller
     public function recentActivities(Request $request)
     {
         $limit = min((int) $request->input('limit', 15), 50); // tối đa 50
-        $data  = $this->dashboardService->getRecentActivities($limit);
+        $key   = "dashboard:recent_activities:{$limit}";
+        
+        $data  = Cache::remember($key, 300, fn() => $this->dashboardService->getRecentActivities($limit));
         return response()->json($data);
     }
 
@@ -60,7 +67,8 @@ class DashboardController extends Controller
      */
     public function alerts()
     {
-        $data = $this->dashboardService->getAlerts();
+        $key  = "dashboard:alerts";
+        $data = Cache::remember($key, 300, fn() => $this->dashboardService->getAlerts());
         return response()->json($data);
     }
 
@@ -69,11 +77,37 @@ class DashboardController extends Controller
      */
     public function miniReports(Request $request)
     {
-        $data = $this->dashboardService->getMiniReports(
-            $request->input('period', 'this_month'),
-            $request->input('start_date'),
-            $request->input('end_date')
-        );
+        $period = $request->input('period', 'this_month');
+        $start  = $request->input('start_date');
+        $end    = $request->input('end_date');
+        
+        $key = "dashboard:mini_reports:{$period}:{$start}:{$end}";
+        
+        $data = Cache::remember($key, 300, fn() => $this->dashboardService->getMiniReports($period, $start, $end));
+        return response()->json($data);
+    }
+
+    /**
+     * Get all dashboard data in a single request to avoid concurrent request bottlenecks
+     */
+    public function summary(Request $request)
+    {
+        $period = $request->input('period', 'this_month');
+        $start  = $request->input('start_date');
+        $end    = $request->input('end_date');
+        
+        $key = "dashboard:summary:{$period}:{$start}:{$end}";
+        
+        $data = Cache::remember($key, 300, function() use ($period, $start, $end) {
+            return [
+                'kpi' => $this->dashboardService->getKpiCards($period, $start, $end),
+                'charts' => $this->dashboardService->getCharts($period, $start, $end),
+                'activities' => $this->dashboardService->getRecentActivities(15),
+                'alerts' => $this->dashboardService->getAlerts(),
+                'miniReports' => $this->dashboardService->getMiniReports($period, $start, $end),
+            ];
+        });
+        
         return response()->json($data);
     }
 }

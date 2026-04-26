@@ -8,7 +8,7 @@ class ProductRepository
 {
     public function paginate($perPage = 15, $search = null)
     {
-        $query = Product::with('supplier');
+        $query = Product::with(['supplier', 'updatedBy']);
 
         if ($search) {
             $query->where('name', 'like', '%' . $search . '%');
@@ -19,7 +19,7 @@ class ProductRepository
 
     public function getAll()
     {
-        return Product::with('supplier')->latest()->get();
+        return Product::with(['supplier', 'updatedBy'])->latest()->get();
     }
 
     public function find($id){
