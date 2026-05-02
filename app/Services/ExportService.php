@@ -113,21 +113,39 @@ class ExportService
                 }
             }
 
-            // Khi hàng đã giao -> Cập nhật Tồn kho (approved)
+            // Khi duyệt đơn (approved) -> Trừ tồn kho
             if ($status === 'approved') {
                 foreach ($export->details as $detail) {
                     $product = Product::find($detail->product_id);
                     if ($product) {
                         if ($product->stock < $detail->quantity) {
-                            throw new Exception("Sản phẩm {$product->name} không đủ tồn kho để xuất.");
+                            throw new Exception("Sản phẩm {$product->name} không đủ tồn kho để xuất (Còn: {$product->stock}).");
                         }
                         $product->stock -= $detail->quantity;
                         $product->save();
 
                         \App\Models\InventoryLog::create([
                             'product_id' => $product->id,
-                            'type' => 'export',
-                            'quantity' => -$detail->quantity,
+                            'type'       => 'export',
+                            'quantity'   => -$detail->quantity,
+                            'created_by' => auth()->id() ?? 1,
+                        ]);
+                    }
+                }
+            }
+
+            // Khi hủy đơn (cancelled) từ trạng thái approved -> Hoàn lại tồn kho
+            if ($status === 'cancelled' && $oldStatus === 'approved') {
+                foreach ($export->details as $detail) {
+                    $product = Product::find($detail->product_id);
+                    if ($product) {
+                        $product->stock += $detail->quantity;
+                        $product->save();
+
+                        \App\Models\InventoryLog::create([
+                            'product_id' => $product->id,
+                            'type'       => 'cancel_export',
+                            'quantity'   => $detail->quantity,
                             'created_by' => auth()->id() ?? 1,
                         ]);
                     }

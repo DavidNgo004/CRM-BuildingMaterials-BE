@@ -81,6 +81,10 @@ class DashboardKpiService
         // --- Lợi nhuận ròng ---
         $profit = $revenue - $cogs - $expenses;
 
+        // --- Đếm tổng số đơn tạo hôm nay (bất kể trạng thái) ---
+        $createdExportCountToday = Export::whereBetween('created_at', [$todayFrom, $todayTo])->count();
+        $createdImportCountToday = Import::whereBetween('created_at', [$todayFrom, $todayTo])->count();
+
         // --- Số sản phẩm sắp hết hàng (stock <= reorder_level) ---
         $lowStockCount = Product::whereColumn('stock', '<=', 'reorder_level')->count();
 
@@ -94,6 +98,8 @@ class DashboardKpiService
             'export_count_today' => $exportCountToday,
             'import_count' => $importCount,
             'import_count_today' => $importCountToday,
+            'created_export_count_today' => $createdExportCountToday,
+            'created_import_count_today' => $createdImportCountToday,
             'low_stock_count' => $lowStockCount,
         ];
     }

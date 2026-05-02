@@ -2072,6 +2072,520 @@
                 ]
             }
         },
+        "/api/reports": {
+            "get": {
+                "tags": [
+                    "Report"
+                ],
+                "summary": "Lấy danh sách báo cáo",
+                "description": "Lấy danh sách báo cáo. Warehouse staff chỉ thấy báo cáo của mình.",
+                "operationId": "567806bfcb5249d80304af8eecbdab06",
+                "parameters": [
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Số lượng bản ghi mỗi trang",
+                        "schema": {
+                            "type": "integer",
+                            "example": 20
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Số trang",
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Danh sách báo cáo",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "user_id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "title": {
+                                                        "type": "string",
+                                                        "example": "Báo cáo tồn kho tháng 4"
+                                                    },
+                                                    "content": {
+                                                        "type": "string",
+                                                        "example": "Tồn kho cần bổ sung thêm xi măng"
+                                                    },
+                                                    "type": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "inventory",
+                                                            "incident",
+                                                            "general",
+                                                            "request"
+                                                        ],
+                                                        "example": "inventory"
+                                                    },
+                                                    "status": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "pending",
+                                                            "seen",
+                                                            "resolved"
+                                                        ],
+                                                        "example": "pending"
+                                                    },
+                                                    "admin_reply": {
+                                                        "type": "string",
+                                                        "example": null
+                                                    },
+                                                    "seen_at": {
+                                                        "type": "string",
+                                                        "format": "datetime",
+                                                        "example": null
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string",
+                                                        "format": "datetime",
+                                                        "example": "2026-04-29T10:00:00"
+                                                    },
+                                                    "updated_at": {
+                                                        "type": "string",
+                                                        "format": "datetime",
+                                                        "example": "2026-04-29T10:00:00"
+                                                    },
+                                                    "user": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "name": {
+                                                                "type": "string",
+                                                                "example": "Nguyễn Văn A"
+                                                            },
+                                                            "email": {
+                                                                "type": "string",
+                                                                "example": "user@example.com"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "current_page": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "last_page": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "per_page": {
+                                            "type": "integer",
+                                            "example": 20
+                                        },
+                                        "total": {
+                                            "type": "integer",
+                                            "example": 10
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - Token không hợp lệ"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Report"
+                ],
+                "summary": "Tạo mới báo cáo",
+                "description": "Tạo mới một báo cáo",
+                "operationId": "33c5b02016cb3041e460ea87e6920ef9",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "title",
+                                    "content",
+                                    "type"
+                                ],
+                                "properties": {
+                                    "title": {
+                                        "description": "Tiêu đề báo cáo",
+                                        "type": "string",
+                                        "example": "Báo cáo tồn kho tháng 4"
+                                    },
+                                    "content": {
+                                        "description": "Nội dung báo cáo",
+                                        "type": "string",
+                                        "example": "Tồn kho cần bổ sung thêm xi măng"
+                                    },
+                                    "type": {
+                                        "description": "Loại báo cáo",
+                                        "type": "string",
+                                        "enum": [
+                                            "inventory",
+                                            "incident",
+                                            "general",
+                                            "request"
+                                        ],
+                                        "example": "inventory"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Tạo báo cáo thành công",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "user_id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "title": {
+                                            "type": "string",
+                                            "example": "Báo cáo tồn kho tháng 4"
+                                        },
+                                        "content": {
+                                            "type": "string",
+                                            "example": "Tồn kho cần bổ sung thêm xi măng"
+                                        },
+                                        "type": {
+                                            "type": "string",
+                                            "example": "inventory"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "pending"
+                                        },
+                                        "admin_reply": {
+                                            "type": "string",
+                                            "example": null
+                                        },
+                                        "seen_at": {
+                                            "type": "string",
+                                            "example": null
+                                        },
+                                        "created_at": {
+                                            "type": "string",
+                                            "example": "2026-04-29T10:00:00"
+                                        },
+                                        "updated_at": {
+                                            "type": "string",
+                                            "example": "2026-04-29T10:00:00"
+                                        },
+                                        "user": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "Nguyễn Văn A"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "example": "user@example.com"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - Token không hợp lệ"
+                    },
+                    "422": {
+                        "description": "Validation Error - Dữ liệu không hợp lệ"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/reports/{id}/seen": {
+            "put": {
+                "tags": [
+                    "Report"
+                ],
+                "summary": "Đánh dấu báo cáo đã xem",
+                "description": "Admin đánh dấu báo cáo đã xem (chỉ admin)",
+                "operationId": "5290e8506eac095ecca5a1026fbd2d46",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID báo cáo",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Cập nhật thành công",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "user_id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "title": {
+                                            "type": "string",
+                                            "example": "Báo cáo tồn kho tháng 4"
+                                        },
+                                        "content": {
+                                            "type": "string",
+                                            "example": "Tồn kho cần bổ sung thêm xi măng"
+                                        },
+                                        "type": {
+                                            "type": "string",
+                                            "example": "inventory"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "seen"
+                                        },
+                                        "admin_reply": {
+                                            "type": "string",
+                                            "example": null
+                                        },
+                                        "seen_at": {
+                                            "type": "string",
+                                            "format": "datetime",
+                                            "example": "2026-04-29T11:00:00"
+                                        },
+                                        "created_at": {
+                                            "type": "string",
+                                            "example": "2026-04-29T10:00:00"
+                                        },
+                                        "updated_at": {
+                                            "type": "string",
+                                            "example": "2026-04-29T11:00:00"
+                                        },
+                                        "user": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "Nguyễn Văn A"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "example": "user@example.com"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - Token không hợp lệ"
+                    },
+                    "403": {
+                        "description": "Forbidden - Chỉ admin mới có quyền"
+                    },
+                    "404": {
+                        "description": "Not Found - Báo cáo không tồn tại"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/reports/{id}/reply": {
+            "put": {
+                "tags": [
+                    "Report"
+                ],
+                "summary": "Phản hồi báo cáo",
+                "description": "Admin phản hồi và giải quyết báo cáo (chỉ admin)",
+                "operationId": "27b4b3604b47814dc8da746605cfcd4f",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID báo cáo",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "admin_reply"
+                                ],
+                                "properties": {
+                                    "admin_reply": {
+                                        "description": "Nội dung phản hồi từ admin",
+                                        "type": "string",
+                                        "example": "Đã tiếp nhận và xử lý"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Phản hồi thành công",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "user_id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "title": {
+                                            "type": "string",
+                                            "example": "Báo cáo tồn kho tháng 4"
+                                        },
+                                        "content": {
+                                            "type": "string",
+                                            "example": "Tồn kho cần bổ sung thêm xi măng"
+                                        },
+                                        "type": {
+                                            "type": "string",
+                                            "example": "inventory"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "resolved"
+                                        },
+                                        "admin_reply": {
+                                            "type": "string",
+                                            "example": "Đã tiếp nhận và xử lý"
+                                        },
+                                        "seen_at": {
+                                            "type": "string",
+                                            "format": "datetime",
+                                            "example": "2026-04-29T11:00:00"
+                                        },
+                                        "created_at": {
+                                            "type": "string",
+                                            "example": "2026-04-29T10:00:00"
+                                        },
+                                        "updated_at": {
+                                            "type": "string",
+                                            "example": "2026-04-29T11:30:00"
+                                        },
+                                        "user": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "Nguyễn Văn A"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "example": "user@example.com"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - Token không hợp lệ"
+                    },
+                    "403": {
+                        "description": "Forbidden - Chỉ admin mới có quyền"
+                    },
+                    "404": {
+                        "description": "Not Found - Báo cáo không tồn tại"
+                    },
+                    "422": {
+                        "description": "Validation Error - Dữ liệu không hợp lệ"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/suppliers": {
             "get": {
                 "tags": [
@@ -2423,6 +2937,10 @@
         {
             "name": "Product",
             "description": "Quản lý sản phẩm"
+        },
+        {
+            "name": "Report",
+            "description": "Quản lý báo cáo - Báo cáo tồn kho, sự cố, yêu cầu"
         },
         {
             "name": "Supplier",

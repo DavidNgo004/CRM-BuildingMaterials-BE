@@ -105,6 +105,8 @@ class DashboardController extends Controller
                 'activities' => $this->dashboardService->getRecentActivities(15),
                 'alerts' => $this->dashboardService->getAlerts(),
                 'miniReports' => $this->dashboardService->getMiniReports($period, $start, $end),
+                'low_stock_products' => \App\Models\Product::whereColumn('stock', '<=', 'reorder_level')
+                    ->get(['id', 'name', 'unit', 'stock as current_stock', 'reorder_level']),
             ];
         });
         

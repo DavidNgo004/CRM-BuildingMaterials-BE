@@ -37,6 +37,7 @@ class DashboardChartService
             'top_products'        => $topProducts,
             'revenue_by_product'  => $this->revenueByProduct($topProducts),
             'inventory_breakdown' => $this->inventoryBreakdown(),
+            'import_export_chart' => $this->importExportChart($from, $to),
         ];
     }
     
@@ -203,5 +204,44 @@ class DashboardChartService
         return $from->diffInDays($to) <= 31
             ? ['%Y-%m-%d', 'date']
             : ['%Y-%m',    'month'];
+    }
+
+    /**
+     * Biểu đồ số lượng đơn nhập / xuất theo ngày/tháng (dành cho Staff Dashboard).
+     */
+    private function importExportChart(Carbon $from, Carbon $to): array
+    {
+        [$group, $label] = $this->resolveGrouping($from, $to);
+
+        $importData = DB::table('imports')
+            ->selectRaw("DATE_FORMAT(updated_at, '{$group}') as {$label}, COUNT(id) as import_count")
+            ->where('status', 'completed')
+            ->whereBetween('updated_at', [$from, $to])
+            ->groupBy($label)
+            ->pluck('import_count', $label)
+            ->toArray();
+
+        $exportData = DB::table('exports')
+            ->selectRaw("DATE_FORMAT(updated_at, '{$group}') as {$label}, COUNT(id) as export_count")
+            ->whereIn('status', ['approved', 'completed'])
+            ->whereBetween('updated_at', [$from, $to])
+            ->groupBy($label)
+            ->pluck('export_count', $label)
+            ->toArray();
+
+        $allDates = array_unique(array_merge(array_keys($importData), array_keys($exportData)));
+        sort($allDates);
+
+        $result = [];
+        foreach ($allDates as $date) {
+            $result[] = [
+                $label         => $date,
+                'label_key'    => $label,
+                'import_count' => (int) ($importData[$date] ?? 0),
+                'export_count' => (int) ($exportData[$date] ?? 0),
+            ];
+        }
+
+        return $result;
     }
 }
