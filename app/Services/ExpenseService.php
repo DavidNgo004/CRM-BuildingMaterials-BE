@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Expense;
+use App\Models\ActivityLog;
 use Illuminate\Support\Facades\DB;
 
 class ExpenseService
@@ -26,19 +27,66 @@ class ExpenseService
     public function create(array $data)
     {
         $data['user_id'] = auth()->id() ?? 1;
-        return Expense::create($data);
+        $expense = Expense::create($data);
+
+        // ── Activity Log ──────────────────────────────────────────────
+        ActivityLogService::log(
+            ActivityLog::CREATE_EXPENSE,
+            'expense',
+            $expense->id,
+            null,
+            [
+                'title'  => $expense->title,
+                'amount' => $expense->amount,
+            ]
+        );
+
+        return $expense;
     }
 
     public function update($id, array $data)
     {
         $expense = Expense::findOrFail($id);
+
+        // ── Snapshot trước khi update ──────────────────────────────────
+        $oldData = [
+            'title'  => $expense->title,
+            'amount' => $expense->amount,
+        ];
+
         $expense->update($data);
+
+        // ── Activity Log ──────────────────────────────────────────────
+        ActivityLogService::log(
+            ActivityLog::UPDATE_EXPENSE,
+            'expense',
+            $id,
+            $oldData,
+            [
+                'title'  => $expense->title,
+                'amount' => $expense->amount,
+            ]
+        );
+
         return $expense;
     }
 
     public function delete($id)
     {
         $expense = Expense::findOrFail($id);
+
+        // ── Activity Log (trước khi xóa) ────────────────────────────────
+        ActivityLogService::log(
+            ActivityLog::DELETE_EXPENSE,
+            'expense',
+            $id,
+            [
+                'title'  => $expense->title,
+                'amount' => $expense->amount,
+            ],
+            null
+        );
+
         return $expense->delete();
     }
 }

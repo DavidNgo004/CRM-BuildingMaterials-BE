@@ -6,6 +6,7 @@ use App\Repositories\ExportRepository;
 use App\Models\Export;
 use App\Models\ExportDetail;
 use App\Models\Product;
+use App\Models\ActivityLog;
 use App\Mail\ExportApprovedMail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -84,6 +85,20 @@ class ExportService
                 ]);
             }
 
+            // ── Activity Log ──────────────────────────────────────────────
+            ActivityLogService::log(
+                ActivityLog::CREATE_EXPORT,
+                'export',
+                $export->id,
+                null,
+                [
+                    'code'        => $export->code,
+                    'grand_total' => $export->grand_total,
+                    'status'      => $export->status,
+                    'items'       => count($data['details']),
+                ]
+            );
+
             return $export->load('details.product', 'customer');
         });
     }
@@ -152,6 +167,21 @@ class ExportService
                 }
             }
 
+            // ── Activity Log theo trạng thái ─────────────────────────────
+            $actionMap = [
+                'approved'  => ActivityLog::APPROVE_EXPORT,
+                'cancelled' => ActivityLog::CANCEL_EXPORT,
+            ];
+            if (isset($actionMap[$status])) {
+                ActivityLogService::log(
+                    $actionMap[$status],
+                    'export',
+                    $export->id,
+                    ['status' => $oldStatus],
+                    ['status' => $status]
+                );
+            }
+
             return $export;
         });
     }
@@ -163,7 +193,18 @@ class ExportService
             if ($export->status !== 'pending') {
                 throw new Exception('Chỉ có thể xóa phiếu xuất khi đang ở trạng thái pending.');
             }
-            return $export->delete();
+            $result = $export->delete();
+
+            // ── Activity Log ──────────────────────────────────────────────
+            ActivityLogService::log(
+                ActivityLog::DELETE_EXPORT,
+                'export',
+                $id,
+                ['id' => $id],
+                null
+            );
+
+            return $result;
         });
     }
 }

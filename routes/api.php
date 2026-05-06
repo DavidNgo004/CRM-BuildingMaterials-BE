@@ -101,4 +101,10 @@ Route::middleware('auth:api')->group(function(){
     Route::put('/reports/{id}/seen', [ReportController::class, 'markSeen'])->middleware('role:admin');
     Route::put('/reports/{id}/reply', [ReportController::class, 'reply'])->middleware('role:admin');
 });
+
+// Activity Logs routes (chỉ Admin)
+use App\Http\Controllers\ActivityLogController;
+Route::middleware(['auth:api', 'role:admin'])->group(function () {
+    Route::get('/activity-logs', [ActivityLogController::class, 'index']);
+});
 ?>

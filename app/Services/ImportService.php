@@ -6,6 +6,7 @@ use App\Repositories\ImportRepository;
 use App\Models\Import;
 use App\Models\ImportDetail;
 use App\Models\Product;
+use App\Models\ActivityLog;
 use App\Mail\OrderSupplierMail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -62,6 +63,19 @@ class ImportService
                 ]);
             }
 
+            // ── Activity Log ──────────────────────────────────────────────
+            ActivityLogService::log(
+                ActivityLog::CREATE_IMPORT,
+                'import',
+                $import->id,
+                null,
+                [
+                    'grand_total' => $import->grand_total,
+                    'status'      => $import->status,
+                    'items'       => count($data['details']),
+                ]
+            );
+
             return $import->load('details.product.supplier');
         });
     }
@@ -102,6 +116,15 @@ class ImportService
                     'total_price' => $detail['unit_price'] * $detail['quantity'],
                 ]);
             }
+
+            // ── Activity Log ──────────────────────────────────────────────
+            ActivityLogService::log(
+                ActivityLog::UPDATE_IMPORT,
+                'import',
+                $import->id,
+                ['grand_total' => $import->getOriginal('grand_total')],
+                ['grand_total' => $import->grand_total]
+            );
 
             return $import->load('details.product.supplier');
         });
@@ -182,6 +205,22 @@ class ImportService
                 }
             }
 
+            // ── Activity Log theo trạng thái ─────────────────────────────
+            $actionMap = [
+                'approved'  => ActivityLog::APPROVE_IMPORT,
+                'completed' => ActivityLog::COMPLETE_IMPORT,
+                'cancelled' => ActivityLog::CANCEL_IMPORT,
+            ];
+            if (isset($actionMap[$status])) {
+                ActivityLogService::log(
+                    $actionMap[$status],
+                    'import',
+                    $import->id,
+                    ['status' => $oldStatus],
+                    ['status' => $status]
+                );
+            }
+
             return $import;
         });
     }
@@ -196,7 +235,18 @@ class ImportService
             if ($import->status !== 'pending') {
                 throw new Exception('Chỉ có thể xóa phiếu nhập khi đang ở trạng thái pending.');
             }
-            return $import->delete();
+            $result = $import->delete();
+
+            // ── Activity Log ──────────────────────────────────────────────
+            ActivityLogService::log(
+                ActivityLog::DELETE_IMPORT,
+                'import',
+                $id,
+                ['id' => $id],
+                null
+            );
+
+            return $result;
         });
     }
 }
