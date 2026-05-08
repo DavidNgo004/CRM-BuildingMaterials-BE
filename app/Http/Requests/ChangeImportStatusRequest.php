@@ -15,6 +15,7 @@ class ChangeImportStatusRequest extends FormRequest
     {
         return [
             'status' => 'required|string|in:completed,cancelled,pending,approved',
+            'cancel_reason' => 'required_if:status,cancelled|string|nullable',
         ];
     }
 }

@@ -61,7 +61,7 @@ class ImportController extends Controller
     public function changeStatus($id, ChangeImportStatusRequest $request)
     {
         try {
-            $import = $this->importService->changeStatus($id, $request->status);
+            $import = $this->importService->changeStatus($id, $request->status, $request->cancel_reason);
             return response()->json($import);
         } catch (Exception $e) {
             return response()->json(['message' => $e->getMessage()], 400);

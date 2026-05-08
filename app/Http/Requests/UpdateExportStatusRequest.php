@@ -23,6 +23,7 @@ class UpdateExportStatusRequest extends FormRequest
     {
         return [
             'status' => 'required|in:pending,approved,completed,cancelled',
+            'cancel_reason' => 'required_if:status,cancelled|string|nullable',
         ];
     }
 
@@ -31,6 +32,7 @@ class UpdateExportStatusRequest extends FormRequest
         return [
             'status.required' => 'Trạng thái là bắt buộc.',
             'status.in' => 'Trạng thái không hợp lệ.',
+            'cancel_reason.required_if' => 'Lý do huỷ là bắt buộc khi trạng thái là đã huỷ.',
         ];
     }
 }

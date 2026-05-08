@@ -26,10 +26,18 @@ class AuthService
         $token = JWTAuth::attempt($credentials);
 
         if (!$token) {
-
             return [
                 'status' => false,
                 'message' => 'Invalid credentials'
+            ];
+        }
+
+        $user = Auth::user();
+        if ($user->is_locked) {
+            JWTAuth::setToken($token)->invalidate();
+            return [
+                'status' => false,
+                'message' => 'Tài khoản của bạn đang bị khoá vui lòng liên hệ admin'
             ];
         }
 
@@ -37,7 +45,7 @@ class AuthService
             'status' => true,
             'data' => [
                 'token' => $token,
-                'user' => Auth::user()
+                'user' => $user
             ]
         ];
     }
@@ -108,6 +116,40 @@ class AuthService
         ];
     }
 
+    public function toggleLockStaff($id)
+    {
+        if (Auth::user()->role !== 'admin') {
+            return [
+                'status' => false,
+                'message' => 'Unauthorized'
+            ];
+        }
+
+        $user = $this->userRepository->find($id);
+
+        if (!$user) {
+            return [
+                'status' => false,
+                'message' => 'Resource not found'
+            ];
+        }
+
+        $user->is_locked = !$user->is_locked;
+        $user->save();
+
+        try {
+            Mail::to($user->email)->send(new \App\Mail\StaffAccountStatusMail($user->name, $user->is_locked));
+        } catch (\Exception $e) {
+            \Log::error('StaffAccountStatusMail failed: ' . $e->getMessage());
+        }
+
+        return [
+            'status' => true,
+            'data' => $user,
+            'message' => $user->is_locked ? 'Tài khoản đã bị khoá' : 'Tài khoản đã được mở khoá'
+        ];
+    }
+
     public function deleteStaff($id)
     {
         if (Auth::user()->role !== 'admin') {
@@ -126,7 +168,16 @@ class AuthService
             ];
         }
 
-        $this->userRepository->delete($user);
+        $hasLinks = \Illuminate\Support\Facades\DB::table('imports')->where('user_id', $id)->exists()
+            || \Illuminate\Support\Facades\DB::table('exports')->where('user_id', $id)->exists()
+            || \Illuminate\Support\Facades\DB::table('inventory_logs')->where('created_by', $id)->exists()
+            || \Illuminate\Support\Facades\DB::table('activity_logs')->where('user_id', $id)->exists();
+
+        if ($hasLinks) {
+            $user->delete(); // Soft delete
+        } else {
+            $user->forceDelete(); // Hard delete
+        }
 
         return [
             'status' => true,

@@ -19,6 +19,7 @@ class Export extends Model
         'grand_total',
         'status',
         'note',
+        'cancel_reason',
     ];
 
     /**

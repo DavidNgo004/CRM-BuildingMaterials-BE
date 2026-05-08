@@ -44,7 +44,7 @@ class ExportController extends Controller
     public function changeStatus(UpdateExportStatusRequest $request, $id)
     {
         try {
-            $export = $this->exportService->changeStatus($id, $request->status);
+            $export = $this->exportService->changeStatus($id, $request->status, $request->cancel_reason);
             return response()->json([
                 'message' => 'Cập nhật trạng thái thành công',
                 'data' => $export

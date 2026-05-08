@@ -130,9 +130,9 @@ class ImportService
         });
     }
 
-    public function changeStatus($id, $status)
+    public function changeStatus($id, $status, $cancel_reason = null)
     {
-        return DB::transaction(function () use ($id, $status) {
+        return DB::transaction(function () use ($id, $status, $cancel_reason) {
             $import = Import::with('details.product.supplier')->findOrFail($id);
 
             if ($import->status === 'completed' || $import->status === 'cancelled') {
@@ -141,6 +141,9 @@ class ImportService
 
             $oldStatus = $import->status;
             $import->status = $status;
+            if ($status === 'cancelled' && $cancel_reason) {
+                $import->cancel_reason = $cancel_reason;
+            }
             $import->save();
 
             // Tự động gửi Email khi trạng thái chuyển qua 'approved' (Admin duyệt phiếu cho Kho)

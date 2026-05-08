@@ -93,6 +93,22 @@ class AuthController extends Controller
         ]);
     }
 
+    public function toggleLockStaff($id)
+    {
+        $result = $this->authService->toggleLockStaff($id);
+
+        if(!$result['status']){
+            return response()->json([
+                'message' => $result['message']
+            ], 403);
+        }
+
+        return response()->json([
+            'message' => $result['message'],
+            'data' => $result['data']
+        ]);
+    }
+
     public function getStaffs()
     {
 

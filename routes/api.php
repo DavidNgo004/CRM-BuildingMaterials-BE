@@ -10,6 +10,7 @@ Route::post('/login',[AuthController::class,'login']);
 Route::middleware('auth:api')->group(function(){
     Route::post('/create-staff',[AuthController::class,'createStaff']);
     Route::put('/staffs/{id}',[AuthController::class,'updateStaff']);
+    Route::put('/staffs/{id}/toggle-lock',[AuthController::class,'toggleLockStaff']);
     Route::delete('/staffs/{id}',[AuthController::class,'deleteStaff']);
     Route::get('/profile',[AuthController::class,'profile']);
     Route::get('/staffs',[AuthController::class,'getStaffs']);

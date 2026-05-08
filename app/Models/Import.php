@@ -19,6 +19,7 @@ class Import extends Model
         'grand_total',
         'status',
         'note',
+        'cancel_reason',
     ];
 
     protected static function boot()

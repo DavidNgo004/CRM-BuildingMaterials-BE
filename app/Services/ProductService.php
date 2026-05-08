@@ -106,10 +106,7 @@ class ProductService
         if (!$product) {
             return false;
         }
-        //chặn xóa nếu đã có export order  hoặc import order liên kết
-        if ($product->exportDetails()->count() > 0 || $product->importDetails()->count() > 0) {
-            throw new \Exception('Không thể xóa sản phẩm đã có trong đơn xuất hoặc nhập.');
-        }
+        $hasLinks = $product->exportDetails()->count() > 0 || $product->importDetails()->count() > 0;
 
         // ── Activity Log (trước khi xóa) ────────────────────────────────
         ActivityLogService::log(
@@ -123,6 +120,10 @@ class ProductService
             null
         );
 
-        return $this->productRepository->delete($product);
+        if ($hasLinks) {
+            return $product->delete(); // Soft delete (Ẩn)
+        } else {
+            return $product->forceDelete(); // Hard delete (Xoá vĩnh viễn)
+        }
     }
 }

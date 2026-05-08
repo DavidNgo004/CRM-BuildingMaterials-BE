@@ -103,9 +103,9 @@ class ExportService
         });
     }
 
-    public function changeStatus($id, $status)
+    public function changeStatus($id, $status, $cancel_reason = null)
     {
-        return DB::transaction(function () use ($id, $status) {
+        return DB::transaction(function () use ($id, $status, $cancel_reason) {
             $export = Export::with('details.product', 'customer')->findOrFail($id);
 
             if ($export->status === 'completed' || $export->status === 'cancelled') {
@@ -114,6 +114,9 @@ class ExportService
 
             $oldStatus = $export->status;
             $export->status = $status;
+            if ($status === 'cancelled' && $cancel_reason) {
+                $export->cancel_reason = $cancel_reason;
+            }
             $export->save();
 
             // Tự động gửi Email khi trạng thái chuyển qua 'approved'
