@@ -20,8 +20,9 @@ class SupplierController extends Controller
     {
         $perPage = $request->get('per_page', 15);
         $search = $request->get('search', null);
+        $status = $request->get('status', null);
         
-        $suppliers = $this->supplierService->paginate($perPage, $search);
+        $suppliers = $this->supplierService->paginate($perPage, $search, $status);
         return response()->json($suppliers);
     }
 

@@ -53,6 +53,11 @@ class ExportService
 
             foreach ($data['details'] as $detail) {
                 $product = Product::findOrFail($detail['product_id']);
+                
+                if (!$product->status) {
+                    throw new Exception("Sản phẩm '{$product->name}' đã ngừng kinh doanh, không thể xuất kho.");
+                }
+
                 if ($product->stock < $detail['quantity']) {
                     throw new Exception("Sản phẩm {$product->name} không đủ tồn kho (Còn: {$product->stock}).");
                 }

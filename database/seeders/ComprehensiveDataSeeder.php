@@ -171,6 +171,15 @@ class ComprehensiveDataSeeder extends Seeder
                 'address' => 'TP.HCM',
                 'status' => true,
                 'notes' => 'Khung sắt, cửa sắt, mắt xích sắt'
+            ],
+            [
+                'name' => 'Nhà cung cấp đã ngừng hợp tác (Test)',
+                'tax_code' => '0000000000',
+                'phone' => '0999999999',
+                'email' => 'stop@test.vn',
+                'address' => 'Hà Nội',
+                'status' => false,
+                'notes' => 'Nhà cung cấp này sẽ bị ẩn khỏi danh sách nhập hàng'
             ]
         ];
 
@@ -476,6 +485,16 @@ class ComprehensiveDataSeeder extends Seeder
                 'sell_price' => 580000,
                 'reorder_level' => 10,
                 'notes' => 'Xích sắt chất lượng cao'
+            ],
+            [
+                'supplier_id' => $supplierIds[0],
+                'name' => 'Sản phẩm đã ngừng kinh doanh (Test)',
+                'unit' => 'Cái',
+                'import_price' => 10000,
+                'sell_price' => 15000,
+                'reorder_level' => 5,
+                'status' => false,
+                'notes' => 'Sản phẩm này sẽ bị ẩn khỏi danh sách nhập/xuất'
             ]
         ];
 

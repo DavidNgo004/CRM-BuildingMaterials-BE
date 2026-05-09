@@ -38,6 +38,16 @@ class ImportService
             $total_price = 0;
 
             foreach ($data['details'] as $detail) {
+                $product = Product::with('supplier')->findOrFail($detail['product_id']);
+                
+                if (!$product->status) {
+                    throw new Exception("Sản phẩm '{$product->name}' đã ngừng kinh doanh, không thể nhập kho.");
+                }
+                
+                if ($product->supplier && !$product->supplier->status) {
+                    throw new Exception("Nhà cung cấp '{$product->supplier->name}' đã ngừng hợp tác, không thể nhập kho sản phẩm của họ.");
+                }
+
                 $total_price += ($detail['unit_price'] * $detail['quantity']);
             }
 
@@ -94,6 +104,16 @@ class ImportService
 
             $total_price = 0;
             foreach ($data['details'] as $detail) {
+                $product = Product::with('supplier')->findOrFail($detail['product_id']);
+                
+                if (!$product->status) {
+                    throw new Exception("Sản phẩm '{$product->name}' đã ngừng kinh doanh, không thể nhập kho.");
+                }
+                
+                if ($product->supplier && !$product->supplier->status) {
+                    throw new Exception("Nhà cung cấp '{$product->supplier->name}' đã ngừng hợp tác, không thể nhập kho sản phẩm của họ.");
+                }
+
                 $total_price += $detail['unit_price'] * $detail['quantity'];
             }
 

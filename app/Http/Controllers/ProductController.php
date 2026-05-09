@@ -23,8 +23,9 @@ class ProductController extends Controller
     public function index(Request $request){
         $perPage = $request->get('per_page', 15);
         $search = $request->get('search', null);
+        $status = $request->get('status', null);
         
-        $products = $this->productService->paginate($perPage, $search);
+        $products = $this->productService->paginate($perPage, $search, $status);
         return response()->json($products);
     }
 

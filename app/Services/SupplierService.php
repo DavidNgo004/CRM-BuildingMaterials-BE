@@ -14,14 +14,14 @@ class SupplierService
         $this->supplierRepository = $supplierRepository;
     }
 
-    public function paginate($perPage = 15, $search = null)
+    public function paginate($perPage = 15, $search = null, $status = null)
     {
-        return $this->supplierRepository->paginate($perPage, $search);
+        return $this->supplierRepository->paginate($perPage, $search, $status);
     }
 
-    public function getAll()
+    public function getAll($status = null)
     {
-        return $this->supplierRepository->getAll();
+        return $this->supplierRepository->getAll($status);
     }
 
     public function find($id)

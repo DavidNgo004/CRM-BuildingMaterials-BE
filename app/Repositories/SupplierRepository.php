@@ -6,22 +6,34 @@ use App\Models\Supplier;
 
 class SupplierRepository
 {
-    public function paginate($perPage = 15, $search = null)
+    public function paginate($perPage = 15, $search = null, $status = null)
     {
         $query = Supplier::query();
 
         if ($search) {
-            $query->where('name', 'like', '%' . $search . '%')
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
                   ->orWhere('code', 'like', '%' . $search . '%')
                   ->orWhere('phone', 'like', '%' . $search . '%');
+            });
+        }
+
+        if ($status !== null) {
+            $query->where('status', $status);
         }
 
         return $query->latest()->paginate($perPage);
     }
 
-    public function getAll()
+    public function getAll($status = null)
     {
-        return Supplier::latest()->get();
+        $query = Supplier::query();
+        
+        if ($status !== null) {
+            $query->where('status', $status);
+        }
+
+        return $query->latest()->get();
     }
 
     public function find($id)

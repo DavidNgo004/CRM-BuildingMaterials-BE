@@ -15,14 +15,14 @@ class ProductService
         $this->productRepository = $productRepository;
     }
 
-    public function paginate($perPage = 15, $search = null)
+    public function paginate($perPage = 15, $search = null, $status = null)
     {
-        return $this->productRepository->paginate($perPage, $search);
+        return $this->productRepository->paginate($perPage, $search, $status);
     }
 
-    public function getAll()
+    public function getAll($status = null)
     {
-        return $this->productRepository->getAll();
+        return $this->productRepository->getAll($status);
     }
 
     public function find($id)

@@ -6,6 +6,8 @@ use App\Services\AuthService;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\CreateStaffRequest;
 use App\Http\Requests\ChangePasswordRequest;
+use App\Http\Requests\ForgotPasswordRequest;
+use App\Http\Requests\ResetPasswordRequest;
 use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
@@ -143,6 +145,36 @@ class AuthController extends Controller
             'message'=>$result['message']
         ]);
 
+    }
+
+    public function forgotPassword(ForgotPasswordRequest $request)
+    {
+        $result = $this->authService->forgotPassword($request);
+
+        if (!$result['status']) {
+            return response()->json([
+                'message' => $result['message']
+            ], 400);
+        }
+
+        return response()->json([
+            'message' => $result['message']
+        ]);
+    }
+
+    public function resetPassword(ResetPasswordRequest $request)
+    {
+        $result = $this->authService->resetPassword($request);
+
+        if (!$result['status']) {
+            return response()->json([
+                'message' => $result['message']
+            ], 400);
+        }
+
+        return response()->json([
+            'message' => $result['message']
+        ]);
     }
 
 }

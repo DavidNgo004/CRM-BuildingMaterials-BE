@@ -6,6 +6,8 @@ use App\Http\Controllers\ImportExcelController;
 
 // Authentication routes
 Route::post('/login',[AuthController::class,'login']);
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 // Protected Auth routes
 Route::middleware('auth:api')->group(function(){
     Route::post('/create-staff',[AuthController::class,'createStaff']);

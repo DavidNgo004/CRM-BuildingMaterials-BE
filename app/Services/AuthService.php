@@ -8,6 +8,8 @@ use App\Repositories\UserRepository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthService
@@ -228,6 +230,92 @@ class AuthService
             'message' => 'Password updated'
         ];
 
+    }
+
+    public function forgotPassword($request)
+    {
+        $user = $this->userRepository->findByEmail($request->email);
+
+        if (!$user) {
+            return [
+                'status' => false,
+                'message' => 'Không tìm thấy tài khoản với email này.'
+            ];
+        }
+
+        $token = Str::random(64);
+
+        DB::table('password_reset_tokens')->updateOrInsert(
+            ['email' => $request->email],
+            [
+                'email' => $request->email,
+                'token' => $token,
+                'created_at' => now()
+            ]
+        );
+
+        $frontendUrl = env('FRONTEND_URL', 'http://localhost:5173');
+        $resetUrl = $frontendUrl . '/reset-password?token=' . $token . '&email=' . urlencode($request->email);
+
+        try {
+            Mail::to($request->email)->send(new \App\Mail\ResetPasswordMail($resetUrl));
+        } catch (\Exception $e) {
+            \Log::error('ResetPasswordMail failed: ' . $e->getMessage());
+            return [
+                'status' => false,
+                'message' => 'Không thể gửi email lúc này. Vui lòng thử lại sau.'
+            ];
+        }
+
+        return [
+            'status' => true,
+            'message' => 'Email chứa liên kết đặt lại mật khẩu đã được gửi.'
+        ];
+    }
+
+    public function resetPassword($request)
+    {
+        $resetRecord = DB::table('password_reset_tokens')
+            ->where('email', $request->email)
+            ->where('token', $request->token)
+            ->first();
+
+        if (!$resetRecord) {
+            return [
+                'status' => false,
+                'message' => 'Token không hợp lệ hoặc đã hết hạn.'
+            ];
+        }
+
+        // Check if token is older than 60 minutes
+        $createdAt = \Carbon\Carbon::parse($resetRecord->created_at);
+        if ($createdAt->diffInMinutes(now()) > 60) {
+            DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+            return [
+                'status' => false,
+                'message' => 'Token đã hết hạn. Vui lòng yêu cầu đặt lại mật khẩu mới.'
+            ];
+        }
+
+        $user = $this->userRepository->findByEmail($request->email);
+
+        if (!$user) {
+            return [
+                'status' => false,
+                'message' => 'Không tìm thấy tài khoản.'
+            ];
+        }
+
+        $this->userRepository->update($user->id, [
+            'password' => Hash::make($request->password)
+        ]);
+
+        DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+
+        return [
+            'status' => true,
+            'message' => 'Mật khẩu đã được đặt lại thành công.'
+        ];
     }
 
 }

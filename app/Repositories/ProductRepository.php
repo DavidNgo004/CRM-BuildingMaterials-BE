@@ -6,7 +6,7 @@ use App\Models\Product;
 
 class ProductRepository
 {
-    public function paginate($perPage = 15, $search = null)
+    public function paginate($perPage = 15, $search = null, $status = null)
     {
         $query = Product::with(['supplier', 'updatedBy']);
 
@@ -14,12 +14,32 @@ class ProductRepository
             $query->where('name', 'like', '%' . $search . '%');
         }
 
+        if ($status !== null) {
+            $query->where('status', $status);
+            if ($status == 1) {
+                $query->whereHas('supplier', function($q) {
+                    $q->where('status', 1);
+                });
+            }
+        }
+
         return $query->latest()->paginate($perPage);
     }
 
-    public function getAll()
+    public function getAll($status = null)
     {
-        return Product::with(['supplier', 'updatedBy'])->latest()->get();
+        $query = Product::with(['supplier', 'updatedBy']);
+        
+        if ($status !== null) {
+            $query->where('status', $status);
+            if ($status == 1) {
+                $query->whereHas('supplier', function($q) {
+                    $q->where('status', 1);
+                });
+            }
+        }
+
+        return $query->latest()->get();
     }
 
     public function find($id){
