@@ -263,7 +263,7 @@ class AuthService
             \Log::error('ResetPasswordMail failed: ' . $e->getMessage());
             return [
                 'status' => false,
-                'message' => 'Không thể gửi email lúc này. Vui lòng thử lại sau.'
+                'message' => 'Lỗi gửi mail: ' . $e->getMessage() . ' (File: ' . $e->getFile() . ':' . $e->getLine() . ')'
             ];
         }
 
