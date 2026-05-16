@@ -130,7 +130,7 @@ class ExportService
                 if (!empty($customer->email)) {
                     try {
                         Mail::to($customer->email)->send(new ExportApprovedMail($export));
-                    } catch (\Exception $e) {
+                    } catch (\Throwable $e) {
                         \Illuminate\Support\Facades\Log::error('Mail Error: ' . $e->getMessage());
                     }
                 }

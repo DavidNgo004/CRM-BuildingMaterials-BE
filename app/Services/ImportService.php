@@ -194,7 +194,7 @@ class ImportService
                         try {
                             Mail::to($supplier->email)
                                 ->send(new OrderSupplierMail($import, $supplier, $data['products']));
-                        } catch (\Exception $e) {
+                        } catch (\Throwable $e) {
                             \Illuminate\Support\Facades\Log::error('Mail Error: ' . $e->getMessage());
                             // Nuốt lỗi gửi mail để không gãy transaction khi smtp lỗi
                         }

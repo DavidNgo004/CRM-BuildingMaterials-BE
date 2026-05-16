@@ -81,7 +81,7 @@ class AuthService
         try {
             Mail::to($user->email)
                 ->send(new StaffAccountCreatedMail($user->name, $user->email, $plainPassword));
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             // Không dừng luồng chính nếu gửi mail thất bại
             \Log::error('StaffAccountCreatedMail failed: ' . $e->getMessage());
         }
@@ -141,7 +141,7 @@ class AuthService
 
         try {
             Mail::to($user->email)->send(new \App\Mail\StaffAccountStatusMail($user->name, $user->is_locked));
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             \Log::error('StaffAccountStatusMail failed: ' . $e->getMessage());
         }
 
@@ -259,7 +259,7 @@ class AuthService
 
         try {
             Mail::to($request->email)->send(new \App\Mail\ResetPasswordMail($resetUrl));
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             \Log::error('ResetPasswordMail failed: ' . $e->getMessage());
             return [
                 'status' => false,
