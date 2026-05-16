@@ -17,6 +17,10 @@ php artisan config:clear
 echo "[2/5] Running migrations..."
 php artisan migrate --force
 
+# Seed admin account (uses firstOrCreate, safe to run multiple times)
+echo "[2.5/5] Seeding admin account..."
+php artisan db:seed --class=AdminSeeder --force
+
 # Create storage symlink if needed
 echo "[3/5] Linking storage..."
 php artisan storage:link --quiet 2>/dev/null || true
