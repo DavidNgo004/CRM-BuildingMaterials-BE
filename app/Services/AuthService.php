@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -83,7 +84,7 @@ class AuthService
                 ->send(new StaffAccountCreatedMail($user->name, $user->email, $plainPassword));
         } catch (\Throwable $e) {
             // Không dừng luồng chính nếu gửi mail thất bại
-            \Log::error('StaffAccountCreatedMail failed: ' . $e->getMessage());
+            Log::error('StaffAccountCreatedMail failed: ' . $e->getMessage());
         }
 
         return [
@@ -142,7 +143,7 @@ class AuthService
         try {
             Mail::to($user->email)->send(new \App\Mail\StaffAccountStatusMail($user->name, $user->is_locked));
         } catch (\Throwable $e) {
-            \Log::error('StaffAccountStatusMail failed: ' . $e->getMessage());
+            Log::error('StaffAccountStatusMail failed: ' . $e->getMessage());
         }
 
         return [
@@ -260,7 +261,7 @@ class AuthService
         try {
             Mail::to($request->email)->send(new \App\Mail\ResetPasswordMail($resetUrl));
         } catch (\Throwable $e) {
-            \Log::error('ResetPasswordMail failed: ' . $e->getMessage());
+            Log::error('ResetPasswordMail failed: ' . $e->getMessage());
             return [
                 'status' => false,
                 'message' => 'Lỗi gửi mail: ' . $e->getMessage() . ' (File: ' . $e->getFile() . ':' . $e->getLine() . ')'
