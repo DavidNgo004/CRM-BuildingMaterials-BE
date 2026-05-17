@@ -47,6 +47,7 @@ class StaffAccountCreatedMail extends Mailable
                 'staffName'     => $this->staffName,
                 'staffEmail'    => $this->staffEmail,
                 'plainPassword' => $this->plainPassword,
+                'loginUrl'      => rtrim(config('app.frontend_url', 'http://localhost:5173'), '/') . '/login',
             ],
         );
     }

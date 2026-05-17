@@ -71,7 +71,7 @@
 
             {{-- CTA Button --}}
             <div style="text-align: center; margin-bottom: 32px;">
-                <a href="{{ config('app.url') }}"
+                <a href="{{ $loginUrl }}"
                    style="display: inline-block; background: linear-gradient(135deg, #283593 0%, #3949ab 100%); color: #ffffff; text-decoration: none; padding: 14px 36px; border-radius: 8px; font-size: 15px; font-weight: 700; letter-spacing: 0.3px; box-shadow: 0 4px 12px rgba(57,73,171,0.35);">
                     🚀 Đăng Nhập Ngay
                 </a>
