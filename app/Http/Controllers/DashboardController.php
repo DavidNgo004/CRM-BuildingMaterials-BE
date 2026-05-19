@@ -98,7 +98,7 @@ class DashboardController extends Controller
         
         $key = "dashboard:summary:{$period}:{$start}:{$end}";
         
-        $data = Cache::remember($key, 300, function() use ($period, $start, $end) {
+        $data = Cache::remember($key, 2, function() use ($period, $start, $end) {
             return [
                 'kpi' => $this->dashboardService->getKpiCards($period, $start, $end),
                 'charts' => $this->dashboardService->getCharts($period, $start, $end),
